@@ -1,0 +1,1864 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Body Explorers! 🦴💪</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ===== RESET ===== */
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+/* ===== APP 1 — QUIZ/LESSON ===== */
+:root {
+  --peach: #FFD6B8;
+  --orange: #FF8C42;
+  --green: #5EC26A;
+  --blue: #4BACF5;
+  --purple: #A78BFA;
+  --yellow: #FFD166;
+  --red: #FF6B6B;
+  --dark: #2D2D2D;
+  --white: #FFFDF8;
+  --card-shadow: 0 8px 32px rgba(0,0,0,0.13);
+}
+
+body {
+  font-family: 'Nunito', sans-serif;
+  background: linear-gradient(135deg, #FFF3E6 0%, #E8F4FF 50%, #F0FFF0 100%);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+.screen { display: none; min-height: 100vh; padding: 20px; }
+.screen.active { display: flex; flex-direction: column; align-items: center; }
+
+/* HOME */
+#home {
+  justify-content: center;
+  background: linear-gradient(160deg, #FFF8F0 0%, #E0F4FF 100%);
+  position: relative;
+  overflow: hidden;
+}
+#home::before {
+  content: '';
+  position: absolute;
+  top: -60px; right: -60px;
+  width: 300px; height: 300px;
+  background: radial-gradient(circle, #FFD6B8 0%, transparent 70%);
+  border-radius: 50%;
+}
+#home::after {
+  content: '';
+  position: absolute;
+  bottom: -80px; left: -80px;
+  width: 350px; height: 350px;
+  background: radial-gradient(circle, #C7F0CA 0%, transparent 70%);
+  border-radius: 50%;
+}
+
+.home-content { position: relative; z-index: 1; text-align: center; width: 100%; max-width: 700px; }
+
+.home-emoji { font-size: 80px; animation: bounce 2s infinite; display: block; margin-bottom: 10px; }
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-18px); }
+}
+
+.home-title {
+  font-family: 'Baloo 2', cursive;
+  font-size: clamp(2.2rem, 7vw, 3.8rem);
+  font-weight: 800;
+  color: var(--dark);
+  line-height: 1.1;
+  margin-bottom: 8px;
+}
+.home-title span { color: var(--orange); }
+
+.home-sub {
+  font-size: clamp(1rem, 3vw, 1.3rem);
+  color: #666;
+  margin-bottom: 30px;
+  font-weight: 600;
+}
+
+.chapter-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  width: 100%;
+  max-width: 640px;
+  margin: 0 auto 14px;
+}
+
+.chapter-card {
+  background: var(--white);
+  border-radius: 20px;
+  padding: 20px 16px;
+  box-shadow: var(--card-shadow);
+  cursor: pointer;
+  transition: transform 0.18s, box-shadow 0.18s;
+  border: 3px solid transparent;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.chapter-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 5px;
+  background: var(--card-color);
+  border-radius: 20px 20px 0 0;
+}
+.chapter-card:active { transform: scale(0.95); }
+.chapter-card.done::after {
+  content: '✅';
+  position: absolute;
+  top: 8px; right: 10px;
+  font-size: 18px;
+}
+
+.chapter-emoji { font-size: 2.8rem; margin-bottom: 6px; }
+.chapter-name {
+  font-family: 'Baloo 2', cursive;
+  font-size: clamp(0.9rem, 2.5vw, 1.1rem);
+  font-weight: 700;
+  color: var(--dark);
+}
+
+/* 3D Explorer card (full width) */
+.explorer-card-wrap {
+  width: 100%;
+  max-width: 640px;
+  margin: 0 auto 14px;
+}
+.explorer-card {
+  background: linear-gradient(135deg, #0d0d2e, #1a1a4e);
+  border-radius: 20px;
+  padding: 20px 16px;
+  box-shadow: 0 8px 32px rgba(125,249,255,0.2);
+  cursor: pointer;
+  transition: transform 0.18s, box-shadow 0.18s;
+  border: 2px solid rgba(125,249,255,0.35);
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.explorer-card:active { transform: scale(0.95); }
+.explorer-card .chapter-emoji { font-size: 2.5rem; }
+.explorer-card .chapter-name { color: #7DF9FF; }
+.explorer-card .chapter-sub { font-size: 0.82rem; color: rgba(125,249,255,0.6); margin-top: 4px; }
+
+.start-quiz-btn {
+  background: linear-gradient(135deg, var(--orange), #FF6B35);
+  color: white;
+  border: none;
+  border-radius: 50px;
+  padding: 18px 48px;
+  font-family: 'Baloo 2', cursive;
+  font-size: 1.4rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 6px 20px rgba(255,140,66,0.4);
+  transition: transform 0.15s, box-shadow 0.15s;
+  letter-spacing: 0.5px;
+  margin-top: 10px;
+}
+.start-quiz-btn:active { transform: scale(0.96); }
+
+/* LESSON */
+#lesson {
+  background: linear-gradient(160deg, #F0F8FF 0%, #FFF5EE 100%);
+  justify-content: flex-start;
+}
+
+.lesson-header {
+  width: 100%;
+  max-width: 700px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.back-btn {
+  background: white;
+  border: 2px solid #ddd;
+  border-radius: 50px;
+  padding: 10px 18px;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  color: var(--dark);
+  white-space: nowrap;
+}
+
+.lesson-title-bar {
+  font-family: 'Baloo 2', cursive;
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--dark);
+}
+
+.lesson-card {
+  background: white;
+  border-radius: 24px;
+  padding: 28px 24px;
+  box-shadow: var(--card-shadow);
+  width: 100%;
+  max-width: 700px;
+  margin-bottom: 16px;
+}
+
+.lesson-emoji-big { font-size: 3.5rem; text-align: center; display: block; margin-bottom: 10px; }
+
+.lesson-section-title {
+  font-family: 'Baloo 2', cursive;
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--dark);
+  margin-bottom: 12px;
+  text-align: center;
+}
+
+.lesson-text {
+  font-size: 1.05rem;
+  color: #444;
+  line-height: 1.7;
+  margin-bottom: 14px;
+}
+
+.fact-box {
+  background: linear-gradient(135deg, #FFF9C4, #FFE082);
+  border-radius: 16px;
+  padding: 16px 18px;
+  border-left: 5px solid var(--yellow);
+  margin: 14px 0;
+}
+.fact-box .fact-label {
+  font-family: 'Baloo 2', cursive;
+  font-weight: 800;
+  color: #B8860B;
+  font-size: 0.9rem;
+  margin-bottom: 4px;
+}
+.fact-box p { font-size: 1rem; color: #5a4a00; font-weight: 600; }
+
+.pill-row { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
+.pill {
+  background: var(--pill-color, #F0F0F0);
+  border-radius: 50px;
+  padding: 7px 16px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--dark);
+}
+
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 12px 0; }
+.info-card {
+  background: var(--ic-bg, #F5F5F5);
+  border-radius: 14px;
+  padding: 14px;
+  text-align: center;
+}
+.info-card .ic-emoji { font-size: 2rem; margin-bottom: 6px; display: block; }
+.info-card .ic-title { font-family: 'Baloo 2', cursive; font-weight: 700; font-size: 1rem; color: var(--dark); }
+.info-card .ic-desc { font-size: 0.85rem; color: #666; margin-top: 4px; }
+
+.bone-list { list-style: none; }
+.bone-list li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 0;
+  border-bottom: 1px dashed #eee;
+  font-size: 1rem;
+}
+.bone-list li:last-child { border-bottom: none; }
+.bone-list .bone-emoji { font-size: 1.4rem; }
+
+/* QUIZ */
+#quiz {
+  background: linear-gradient(160deg, #EEF2FF 0%, #FFF0F5 100%);
+  justify-content: flex-start;
+}
+
+.quiz-header { width: 100%; max-width: 700px; margin-bottom: 16px; }
+
+.quiz-progress-bar-wrap {
+  background: #E0E0E0;
+  border-radius: 20px;
+  height: 14px;
+  width: 100%;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+.quiz-progress-bar {
+  background: linear-gradient(90deg, var(--green), #3DD68C);
+  height: 100%;
+  border-radius: 20px;
+  transition: width 0.5s ease;
+}
+.quiz-meta {
+  display: flex;
+  justify-content: space-between;
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: #666;
+}
+
+.question-card {
+  background: white;
+  border-radius: 24px;
+  padding: 28px 22px;
+  box-shadow: var(--card-shadow);
+  width: 100%;
+  max-width: 700px;
+  text-align: center;
+  animation: slideIn 0.35s ease;
+}
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.q-emoji { font-size: 3rem; display: block; margin-bottom: 10px; }
+.q-text {
+  font-family: 'Baloo 2', cursive;
+  font-size: clamp(1.1rem, 3.5vw, 1.45rem);
+  font-weight: 700;
+  color: var(--dark);
+  margin-bottom: 22px;
+  line-height: 1.4;
+}
+
+.options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+.option-btn {
+  background: #F8F8F8;
+  border: 3px solid #E0E0E0;
+  border-radius: 18px;
+  padding: 16px 12px;
+  font-family: 'Nunito', sans-serif;
+  font-size: clamp(0.9rem, 2.5vw, 1.05rem);
+  font-weight: 700;
+  color: var(--dark);
+  cursor: pointer;
+  transition: all 0.18s;
+  text-align: center;
+  min-height: 70px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+.option-btn:active { transform: scale(0.96); }
+.option-btn.correct {
+  background: #D4EDDA;
+  border-color: var(--green);
+  color: #155724;
+  animation: correctPop 0.4s ease;
+}
+.option-btn.wrong {
+  background: #FDDCDA;
+  border-color: var(--red);
+  color: #721C24;
+  animation: shake 0.4s ease;
+}
+@keyframes correctPop {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.08); }
+  100% { transform: scale(1); }
+}
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-8px); }
+  75% { transform: translateX(8px); }
+}
+
+.feedback-banner {
+  margin-top: 16px;
+  padding: 14px 18px;
+  border-radius: 16px;
+  font-weight: 700;
+  font-size: 1rem;
+  display: none;
+  animation: fadeIn 0.3s;
+}
+.feedback-banner.show { display: block; }
+.feedback-banner.correct { background: #D4EDDA; color: #155724; }
+.feedback-banner.wrong { background: #FDDCDA; color: #721C24; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+.next-btn {
+  margin-top: 18px;
+  background: linear-gradient(135deg, var(--blue), #2196F3);
+  color: white;
+  border: none;
+  border-radius: 50px;
+  padding: 16px 40px;
+  font-family: 'Baloo 2', cursive;
+  font-size: 1.2rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: none;
+  width: 100%;
+  max-width: 300px;
+  box-shadow: 0 5px 16px rgba(33,150,243,0.35);
+}
+.next-btn.show { display: block; }
+
+/* RESULT */
+#result {
+  justify-content: center;
+  text-align: center;
+  background: linear-gradient(160deg, #FFF8F0 0%, #F0FFF0 100%);
+}
+
+.result-content { max-width: 600px; width: 100%; }
+.result-trophy { font-size: 90px; display: block; margin-bottom: 10px; animation: trophyBounce 1s ease; }
+@keyframes trophyBounce {
+  0% { transform: scale(0) rotate(-20deg); opacity: 0; }
+  60% { transform: scale(1.2) rotate(5deg); opacity: 1; }
+  100% { transform: scale(1) rotate(0); }
+}
+.result-title {
+  font-family: 'Baloo 2', cursive;
+  font-size: clamp(1.8rem, 6vw, 2.8rem);
+  font-weight: 800;
+  color: var(--dark);
+  margin-bottom: 8px;
+}
+.result-score-wrap {
+  background: white;
+  border-radius: 24px;
+  padding: 24px;
+  box-shadow: var(--card-shadow);
+  margin: 20px 0;
+}
+.result-score {
+  font-family: 'Baloo 2', cursive;
+  font-size: clamp(3rem, 10vw, 5rem);
+  font-weight: 800;
+  color: var(--orange);
+}
+.result-score-label { font-size: 1.1rem; color: #666; font-weight: 600; }
+.stars-row { font-size: 2.5rem; margin: 10px 0; }
+.result-message { font-size: 1.1rem; color: #555; font-weight: 600; margin-bottom: 20px; }
+.result-btns { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
+.retry-btn {
+  background: linear-gradient(135deg, var(--purple), #7C3AED);
+  color: white;
+  border: none;
+  border-radius: 50px;
+  padding: 16px 32px;
+  font-family: 'Baloo 2', cursive;
+  font-size: 1.15rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 5px 18px rgba(124,58,237,0.35);
+}
+.home-btn-res {
+  background: white;
+  color: var(--dark);
+  border: 3px solid #DDD;
+  border-radius: 50px;
+  padding: 16px 32px;
+  font-family: 'Baloo 2', cursive;
+  font-size: 1.15rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.star-burst {
+  position: fixed;
+  pointer-events: none;
+  font-size: 2rem;
+  animation: starFly 1.2s ease forwards;
+  z-index: 9999;
+}
+@keyframes starFly {
+  0% { opacity: 1; transform: scale(1) translateY(0); }
+  100% { opacity: 0; transform: scale(2) translateY(-100px); }
+}
+
+.lesson-dots { display: flex; gap: 8px; justify-content: center; margin-bottom: 16px; }
+.lesson-dot {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  background: #DDD;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s;
+}
+.lesson-dot.active { background: var(--orange); transform: scale(1.4); }
+.lesson-dot.visited { background: var(--green); }
+
+.lesson-nav {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  margin-top: 8px;
+  margin-bottom: 8px;
+  width: 100%;
+  max-width: 700px;
+}
+.lesson-nav-btn {
+  flex: 1;
+  background: white;
+  border: 2px solid #DDD;
+  border-radius: 50px;
+  padding: 12px;
+  font-family: 'Baloo 2', cursive;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  color: var(--dark);
+  transition: all 0.15s;
+}
+.lesson-nav-btn.primary {
+  background: linear-gradient(135deg, var(--orange), #FF6B35);
+  border-color: transparent;
+  color: white;
+  box-shadow: 0 4px 14px rgba(255,140,66,0.3);
+}
+
+.nutrient-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 14px 0; }
+.nutrient-card { border-radius: 16px; padding: 14px 10px; text-align: center; background: var(--nc-bg); }
+.nutrient-card .nc-emoji { font-size: 2.2rem; display: block; margin-bottom: 4px; }
+.nutrient-card .nc-name { font-family: 'Baloo 2', cursive; font-weight: 700; font-size: 0.9rem; color: var(--dark); }
+.nutrient-card .nc-desc { font-size: 0.78rem; color: #666; margin-top: 3px; }
+
+.warning-box {
+  background: linear-gradient(135deg, #FFE5E5, #FFCDD2);
+  border-radius: 16px;
+  padding: 14px 18px;
+  border-left: 5px solid var(--red);
+  margin: 12px 0;
+}
+.warning-box .w-label { font-family: 'Baloo 2', cursive; font-weight: 800; color: #C62828; font-size: 0.9rem; margin-bottom: 4px; }
+.warning-box p { font-size: 0.95rem; color: #5a0000; font-weight: 600; }
+
+.tip-list { list-style: none; margin: 10px 0; }
+.tip-list li {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 8px 0;
+  font-size: 0.98rem;
+  color: #444;
+  font-weight: 600;
+  border-bottom: 1px dashed #eee;
+}
+.tip-list li:last-child { border-bottom: none; }
+.tip-list .ti-emoji { font-size: 1.4rem; flex-shrink: 0; }
+
+.q-type-tag {
+  display: inline-block;
+  background: var(--purple);
+  color: white;
+  border-radius: 30px;
+  padding: 4px 14px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+/* ===== APP 2 — 3D EXPLORER SCREEN ===== */
+#explorer.screen.active {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw; height: 100vh;
+  overflow: hidden;
+  z-index: 1000;
+  background: #0a0a1a;
+  color: white;
+  display: block;
+  padding: 0;
+  min-height: unset;
+}
+
+#canvas-container {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  z-index: 1;
+}
+#canvas-container canvas { display: block; touch-action: none; }
+
+#exp-topbar {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px;
+  background: linear-gradient(180deg, rgba(10,10,26,0.95) 0%, transparent 100%);
+}
+
+.exp-back-btn {
+  background: rgba(255,255,255,0.12);
+  border: 1px solid rgba(255,255,255,0.25);
+  border-radius: 50px;
+  padding: 9px 18px;
+  font-family: 'Nunito', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: white;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.exp-back-btn:active { background: rgba(255,255,255,0.2); }
+
+.exp-app-title {
+  font-family: 'Baloo 2', cursive;
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.exp-app-title span { color: #7DF9FF; }
+
+.hint-pill {
+  background: rgba(125,249,255,0.15);
+  border: 1px solid rgba(125,249,255,0.3);
+  border-radius: 30px;
+  padding: 6px 14px;
+  font-size: 0.8rem;
+  color: #7DF9FF;
+  font-weight: 700;
+  backdrop-filter: blur(8px);
+}
+
+#bonePanel {
+  position: absolute;
+  bottom: 110px;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  width: calc(100% - 32px);
+  max-width: 500px;
+  background: rgba(15,15,40,0.92);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(125,249,255,0.25);
+  border-radius: 24px;
+  padding: 20px 22px;
+  z-index: 10;
+  opacity: 0;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  pointer-events: none;
+}
+#bonePanel.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+  pointer-events: all;
+}
+
+.bone-panel-header { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+.bone-panel-emoji { font-size: 2.2rem; }
+.bone-panel-name { font-family: 'Baloo 2', cursive; font-size: 1.4rem; font-weight: 800; color: #7DF9FF; }
+.bone-panel-latin { font-size: 0.85rem; color: rgba(255,255,255,0.5); font-style: italic; margin-top: 2px; }
+.bone-panel-desc { font-size: 0.97rem; color: rgba(255,255,255,0.85); line-height: 1.6; font-weight: 600; }
+.bone-panel-fun {
+  margin-top: 10px;
+  background: rgba(125,249,255,0.1);
+  border-left: 3px solid #7DF9FF;
+  border-radius: 0 10px 10px 0;
+  padding: 8px 12px;
+  font-size: 0.88rem;
+  color: #A0F0FF;
+  font-weight: 700;
+}
+
+.close-panel {
+  position: absolute;
+  top: 12px; right: 14px;
+  background: rgba(255,255,255,0.1);
+  border: none;
+  color: white;
+  border-radius: 50%;
+  width: 30px; height: 30px;
+  font-size: 1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#exp-controls {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  z-index: 10;
+  padding: 12px 16px 24px;
+  background: linear-gradient(0deg, rgba(10,10,26,0.98) 0%, transparent 100%);
+}
+.controls-row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+.ctrl-btn {
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 50px;
+  padding: 10px 18px;
+  color: white;
+  font-family: 'Nunito', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+  transition: all 0.18s;
+  white-space: nowrap;
+}
+.ctrl-btn:active { transform: scale(0.93); background: rgba(125,249,255,0.2); }
+.ctrl-btn.active { background: rgba(125,249,255,0.2); border-color: #7DF9FF; color: #7DF9FF; }
+
+#boneList {
+  position: absolute;
+  top: 70px; right: 0; bottom: 110px;
+  width: 200px;
+  background: rgba(10,10,26,0.88);
+  backdrop-filter: blur(16px);
+  border-left: 1px solid rgba(125,249,255,0.15);
+  z-index: 10;
+  overflow-y: auto;
+  transform: translateX(100%);
+  transition: transform 0.3s ease;
+  padding: 12px 10px;
+}
+#boneList.open { transform: translateX(0); }
+#boneList::-webkit-scrollbar { width: 4px; }
+#boneList::-webkit-scrollbar-thumb { background: rgba(125,249,255,0.3); border-radius: 4px; }
+
+.bl-title {
+  font-family: 'Baloo 2', cursive;
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #7DF9FF;
+  margin-bottom: 10px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(125,249,255,0.2);
+}
+.bl-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 6px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.15s;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: rgba(255,255,255,0.75);
+}
+.bl-item:hover, .bl-item.selected { background: rgba(125,249,255,0.12); color: #7DF9FF; }
+.bl-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+
+#exp-loading {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: #0a0a1a;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  transition: opacity 0.5s;
+}
+.loading-emoji { font-size: 5rem; animation: spinY 2s linear infinite; }
+@keyframes spinY { from { transform: rotateY(0deg); } to { transform: rotateY(360deg); } }
+.loading-text { font-family: 'Baloo 2', cursive; font-size: 1.3rem; font-weight: 700; color: #7DF9FF; }
+.loading-bar-wrap { width: 200px; height: 6px; background: rgba(255,255,255,0.1); border-radius: 10px; overflow: hidden; }
+.loading-bar { height: 100%; background: #7DF9FF; border-radius: 10px; animation: loadBar 1.5s ease forwards; }
+@keyframes loadBar { from { width: 0; } to { width: 100%; } }
+
+#rotateHint {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 5;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  opacity: 1;
+  transition: opacity 1s;
+}
+#rotateHint.hide { opacity: 0; }
+.hint-hand { font-size: 2.5rem; animation: swipeHint 1.5s ease-in-out infinite; }
+@keyframes swipeHint {
+  0%, 100% { transform: translateX(-20px); opacity: 0.5; }
+  50% { transform: translateX(20px); opacity: 1; }
+}
+.hint-text {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: rgba(255,255,255,0.6);
+  background: rgba(0,0,0,0.4);
+  padding: 6px 16px;
+  border-radius: 20px;
+}
+</style>
+</head>
+<body>
+
+<!-- HOME SCREEN -->
+<div id="home" class="screen active">
+  <div class="home-content">
+    <span class="home-emoji">🦴</span>
+    <h1 class="home-title">Body <span>Explorers!</span></h1>
+    <p class="home-sub">Learn about your amazing body 💪✨</p>
+
+    <div class="chapter-grid">
+      <div class="chapter-card" style="--card-color: #FF8C42;" onclick="goLesson(0)">
+        <div class="chapter-emoji">🦴</div>
+        <div class="chapter-name">Bones & Skeleton</div>
+      </div>
+      <div class="chapter-card" style="--card-color: #FF6B6B;" onclick="goLesson(1)">
+        <div class="chapter-emoji">💪</div>
+        <div class="chapter-name">Muscles & Joints</div>
+      </div>
+      <div class="chapter-card" style="--card-color: #5EC26A;" onclick="goLesson(2)">
+        <div class="chapter-emoji">🥦</div>
+        <div class="chapter-name">Nutrition & Food</div>
+      </div>
+      <div class="chapter-card" style="--card-color: #4BACF5;" onclick="goLesson(3)">
+        <div class="chapter-emoji">🩺</div>
+        <div class="chapter-name">Stay Healthy!</div>
+      </div>
+    </div>
+
+    <div class="explorer-card-wrap">
+      <div class="explorer-card" onclick="goExplorer()">
+        <div class="chapter-emoji">🦴</div>
+        <div class="chapter-name">✨ 3D Skeleton Explorer</div>
+        <div class="chapter-sub">Rotate & tap bones to learn their names!</div>
+      </div>
+    </div>
+
+    <button class="start-quiz-btn" onclick="startQuiz()">🎮 Take the Quiz!</button>
+  </div>
+</div>
+
+<!-- LESSON SCREEN -->
+<div id="lesson" class="screen">
+  <div class="lesson-header">
+    <button class="back-btn" onclick="goHome()">← Back</button>
+    <div class="lesson-title-bar" id="lessonTitleBar">🦴 Bones</div>
+  </div>
+  <div class="lesson-dots" id="lessonDots"></div>
+  <div id="lessonContent" style="width:100%;max-width:700px;"></div>
+  <div class="lesson-nav">
+    <button class="lesson-nav-btn" id="prevLessonBtn" onclick="prevLesson()">← Prev</button>
+    <button class="lesson-nav-btn primary" id="nextLessonBtn" onclick="nextLesson()">Next →</button>
+  </div>
+</div>
+
+<!-- QUIZ SCREEN -->
+<div id="quiz" class="screen">
+  <div class="quiz-header">
+    <div class="quiz-progress-bar-wrap">
+      <div class="quiz-progress-bar" id="quizProgressBar"></div>
+    </div>
+    <div class="quiz-meta">
+      <span id="questionCounter">Question 1 / 15</span>
+      <span id="scoreTracker">⭐ 0</span>
+    </div>
+  </div>
+  <div class="question-card" id="questionCard"></div>
+  <button class="next-btn" id="nextQuestionBtn" onclick="nextQuestion()">Next Question →</button>
+</div>
+
+<!-- RESULT SCREEN -->
+<div id="result" class="screen">
+  <div class="result-content">
+    <span class="result-trophy" id="resultTrophy">🏆</span>
+    <div class="result-title" id="resultTitle">Amazing job!</div>
+    <div class="result-score-wrap">
+      <div class="result-score" id="resultScore">0/15</div>
+      <div class="result-score-label">correct answers</div>
+      <div class="stars-row" id="resultStars">⭐⭐⭐</div>
+    </div>
+    <div class="result-message" id="resultMsg">You're a Body Explorer!</div>
+    <div class="result-btns">
+      <button class="retry-btn" onclick="startQuiz()">🔄 Try Again</button>
+      <button class="home-btn-res" onclick="goHome()">🏠 Home</button>
+    </div>
+  </div>
+</div>
+
+<!-- 3D EXPLORER SCREEN -->
+<div id="explorer" class="screen">
+  <div id="canvas-container"></div>
+
+  <div id="exp-topbar">
+    <button class="exp-back-btn" onclick="goHome()">← Home</button>
+    <div class="exp-app-title">🦴 <span>Skeleton</span> Explorer</div>
+    <div class="hint-pill">👆 Tap a bone!</div>
+  </div>
+
+  <div id="rotateHint">
+    <div class="hint-hand">👆</div>
+    <div class="hint-text">Drag to rotate • Tap to learn</div>
+  </div>
+
+  <div id="bonePanel">
+    <button class="close-panel" onclick="closePanel()">✕</button>
+    <div class="bone-panel-header">
+      <div class="bone-panel-emoji" id="panelEmoji">🦴</div>
+      <div>
+        <div class="bone-panel-name" id="panelName">Bone</div>
+        <div class="bone-panel-latin" id="panelLatin"></div>
+      </div>
+    </div>
+    <div class="bone-panel-desc" id="panelDesc"></div>
+    <div class="bone-panel-fun" id="panelFun"></div>
+  </div>
+
+  <div id="boneList">
+    <div class="bl-title">🦴 All Bones</div>
+    <div id="boneListItems"></div>
+  </div>
+
+  <div id="exp-controls">
+    <div class="controls-row">
+      <button class="ctrl-btn" id="btnRotate" onclick="toggleAutoRotate()">⏸ Auto-Rotate</button>
+      <button class="ctrl-btn" onclick="resetCamera()">🔄 Reset View</button>
+      <button class="ctrl-btn" id="btnXray" onclick="toggleXray()">💀 X-Ray Mode</button>
+      <button class="ctrl-btn" id="btnList" onclick="toggleBoneList()">📋 Bone List</button>
+    </div>
+  </div>
+
+  <div id="exp-loading">
+    <div class="loading-emoji">🦴</div>
+    <div class="loading-text">Building your skeleton...</div>
+    <div class="loading-bar-wrap"><div class="loading-bar"></div></div>
+  </div>
+</div>
+
+<script>
+// ===================== LESSONS DATA =====================
+const lessons = [
+  {
+    title: '🦴 Bones & Skeleton',
+    pages: [
+      `<span class="lesson-emoji-big">🦴</span>
+       <div class="lesson-section-title">What is the Skeleton?</div>
+       <p class="lesson-text">Your skeleton is like the <strong>frame of a building</strong> inside your body! It is made of all your bones and cartilage working together.</p>
+       <div class="two-col">
+         <div class="info-card" style="--ic-bg:#FFF3E0;">
+           <span class="ic-emoji">👶</span>
+           <div class="ic-title">Baby: 300 bones</div>
+           <div class="ic-desc">Babies are born with more bones!</div>
+         </div>
+         <div class="info-card" style="--ic-bg:#E8F5E9;">
+           <span class="ic-emoji">🧑</span>
+           <div class="ic-title">Adult: 206 bones</div>
+           <div class="ic-desc">Some bones grow together over time</div>
+         </div>
+       </div>
+       <div class="fact-box">
+         <div class="fact-label">⚡ FUN FACT!</div>
+         <p>Bones support your body weight, help you move, AND protect your organs! 🛡️</p>
+       </div>`,
+
+      `<span class="lesson-emoji-big">💀</span>
+       <div class="lesson-section-title">The Skull</div>
+       <p class="lesson-text">Your skull <strong>protects your brain</strong> and sense organs (eyes, ears, nose). It also gives shape to your face!</p>
+       <ul class="bone-list">
+         <li><span class="bone-emoji">🔝</span><div><strong>Cranium</strong> — the round top part that wraps around the brain</div></li>
+         <li><span class="bone-emoji">😐</span><div><strong>Frontal bone</strong> — your forehead</div></li>
+         <li><span class="bone-emoji">👃</span><div><strong>Nasal bone</strong> — your nose</div></li>
+         <li><span class="bone-emoji">😁</span><div><strong>Maxilla</strong> — upper jaw (holds upper teeth)</div></li>
+         <li><span class="bone-emoji">🗣️</span><div><strong>Mandible</strong> — lower jaw (the ONLY skull bone that moves!)</div></li>
+       </ul>
+       <div class="fact-box">
+         <div class="fact-label">⚡ FUN FACT!</div>
+         <p>The lower jaw (mandible) is the ONLY bone in your skull that can move! That's how you chew and talk! 🗣️</p>
+       </div>`,
+
+      `<span class="lesson-emoji-big">🫀</span>
+       <div class="lesson-section-title">Ribs & Spine</div>
+       <p class="lesson-text">Your <strong>rib cage</strong> is like a protective basket around your heart and lungs. Your <strong>spine</strong> is the long column of bones in your back!</p>
+       <div class="two-col">
+         <div class="info-card" style="--ic-bg:#FCE4EC;">
+           <span class="ic-emoji">🫀</span>
+           <div class="ic-title">Rib Cage</div>
+           <div class="ic-desc">Protects heart & lungs, helps you breathe</div>
+         </div>
+         <div class="info-card" style="--ic-bg:#E3F2FD;">
+           <span class="ic-emoji">🔩</span>
+           <div class="ic-title">Spine (Backbone)</div>
+           <div class="ic-desc">Lets you sit, walk, bend, and twist!</div>
+         </div>
+       </div>
+       <div class="fact-box">
+         <div class="fact-label">⚡ FUN FACT!</div>
+         <p>The spine also protects your spinal cord — the super-highway that carries messages between your brain and body! 🧠⚡</p>
+       </div>`,
+
+      `<span class="lesson-emoji-big">🦾</span>
+       <div class="lesson-section-title">Arm, Hand, Leg & Foot Bones</div>
+       <div class="two-col">
+         <div class="info-card" style="--ic-bg:#F3E5F5;">
+           <span class="ic-emoji">🦾</span>
+           <div class="ic-title">Arm Bones</div>
+           <div class="ic-desc">Humerus (upper), Radius & Ulna (lower), Carpal (wrist), Metacarpal (palm), Phalanges (fingers)</div>
+         </div>
+         <div class="info-card" style="--ic-bg:#E8F5E9;">
+           <span class="ic-emoji">🦵</span>
+           <div class="ic-title">Leg Bones</div>
+           <div class="ic-desc">Femur (thigh), Patella (kneecap), Tibia & Fibula (lower), Tarsal/Metatarsal/Phalanges (foot)</div>
+         </div>
+       </div>
+       <div class="fact-box">
+         <div class="fact-label">⚡ FUN FACT!</div>
+         <p>The <strong>femur</strong> (thigh bone) is the LONGEST and STRONGEST bone in your whole body! 💪</p>
+       </div>`
+    ]
+  },
+  {
+    title: '💪 Muscles & Joints',
+    pages: [
+      `<span class="lesson-emoji-big">💪</span>
+       <div class="lesson-section-title">The Muscular System</div>
+       <p class="lesson-text">Muscles are <strong>soft stretchy tissues</strong> made of many fibers. You have <strong>more than 600 muscles</strong> in your body!</p>
+       <div class="fact-box">
+         <div class="fact-label">🧠 How it works</div>
+         <p>When you want to move → your brain sends an electrical signal → through the spinal cord and nerves → to your muscles → muscles CONTRACT (get shorter) ⚡</p>
+       </div>
+       <p class="lesson-text">When muscles <strong>relax</strong>, they get longer again. Muscles work in pairs — one contracts while the other relaxes!</p>`,
+
+      `<span class="lesson-emoji-big">🔗</span>
+       <div class="lesson-section-title">The Joint System</div>
+       <p class="lesson-text">A <strong>joint</strong> is where 2 or more bones meet. Your body has about <strong>360 joints!</strong></p>
+       <div class="two-col">
+         <div class="info-card" style="--ic-bg:#FFF9C4;">
+           <span class="ic-emoji">⚽</span>
+           <div class="ic-title">Ball & Socket Joint</div>
+           <div class="ic-desc">Rotates in all directions. Found in shoulder & hip!</div>
+         </div>
+         <div class="info-card" style="--ic-bg:#E3F2FD;">
+           <span class="ic-emoji">🚪</span>
+           <div class="ic-title">Hinge Joint</div>
+           <div class="ic-desc">Opens and closes in one direction. Found in elbow, knee & ankle!</div>
+         </div>
+       </div>
+       <div class="fact-box">
+         <div class="fact-label">⚡ FUN FACT!</div>
+         <p>Your knee is a hinge joint — just like a door! It can only open and close in one direction. Try bending your knee sideways — you can't! 🚪</p>
+       </div>`
+    ]
+  },
+  {
+    title: '🥦 Nutrition & Food',
+    pages: [
+      `<span class="lesson-emoji-big">🍽️</span>
+       <div class="lesson-section-title">Why Do We Need Good Food?</div>
+       <p class="lesson-text">A <strong>balanced diet</strong> gives your body the right nutrients for energy, growth, and staying healthy. You need food from 5 food groups!</p>
+       <div class="nutrient-row">
+         <div class="nutrient-card" style="--nc-bg:#FFF3E0;"><span class="nc-emoji">🍞</span><div class="nc-name">Carbs</div><div class="nc-desc">Energy fuel!</div></div>
+         <div class="nutrient-card" style="--nc-bg:#FCE4EC;"><span class="nc-emoji">🥩</span><div class="nc-name">Protein</div><div class="nc-desc">Builds muscles</div></div>
+         <div class="nutrient-card" style="--nc-bg:#E8F5E9;"><span class="nc-emoji">🥑</span><div class="nc-name">Healthy Fats</div><div class="nc-desc">Brain power!</div></div>
+         <div class="nutrient-card" style="--nc-bg:#E3F2FD;"><span class="nc-emoji">🥛</span><div class="nc-name">Calcium</div><div class="nc-desc">Strong bones</div></div>
+         <div class="nutrient-card" style="--nc-bg:#FFF9C4;"><span class="nc-emoji">☀️</span><div class="nc-name">Vitamin D</div><div class="nc-desc">Absorbs calcium</div></div>
+         <div class="nutrient-card" style="--nc-bg:#F3E5F5;"><span class="nc-emoji">💧</span><div class="nc-name">Water</div><div class="nc-desc">All cells need it!</div></div>
+       </div>`,
+
+      `<span class="lesson-emoji-big">🥛</span>
+       <div class="lesson-section-title">Calcium & Vitamin D</div>
+       <p class="lesson-text"><strong>Calcium</strong> makes your bones and teeth STRONG! Foods rich in calcium:</p>
+       <div class="pill-row">
+         <span class="pill" style="--pill-color:#E3F2FD;">🥛 Milk</span>
+         <span class="pill" style="--pill-color:#FFF9C4;">🧀 Cheese</span>
+         <span class="pill" style="--pill-color:#F3E5F5;">🍦 Yogurt</span>
+         <span class="pill" style="--pill-color:#E8F5E9;">🥦 Broccoli</span>
+         <span class="pill" style="--pill-color:#E8F5E9;">🌿 Spinach</span>
+         <span class="pill" style="--pill-color:#FFF3E0;">🌰 Almonds</span>
+       </div>
+       <p class="lesson-text" style="margin-top:14px;"><strong>Vitamin D</strong> helps your body absorb calcium. Get it from sunlight! ☀️</p>
+       <div class="fact-box">
+         <div class="fact-label">☀️ Sunshine Tip</div>
+         <p>Getting 15–20 minutes of morning sunlight, 3 times a week is enough for Vitamin D! Easy and free! 🆓</p>
+       </div>`,
+
+      `<span class="lesson-emoji-big">💧</span>
+       <div class="lesson-section-title">Don't Forget Water!</div>
+       <p class="lesson-text">Water helps every cell, tissue, and organ work properly. You need water to survive!</p>
+       <div class="fact-box">
+         <div class="fact-label">💧 Daily Water Goal</div>
+         <p>Children aged 7–9 years should drink about <strong>1.7 liters = 8–9 glasses</strong> of water every day! 🥤🥤🥤</p>
+       </div>
+       <div class="warning-box">
+         <div class="w-label">⚠️ Watch Out!</div>
+         <p>Too little calcium → weak bones (osteoporosis) 🦴<br>Too little vitamin D → muscle cramps & weak bones<br>Too little protein → weak muscles & easily broken bones</p>
+       </div>`
+    ]
+  },
+  {
+    title: '🩺 Stay Healthy!',
+    pages: [
+      `<span class="lesson-emoji-big">🏃</span>
+       <div class="lesson-section-title">How to Keep Your Body Strong</div>
+       <p class="lesson-text">Taking care of your musculoskeletal system means looking after your <strong>bones, muscles, and joints</strong>!</p>
+       <ul class="tip-list">
+         <li><span class="ti-emoji">🥗</span><div><strong>Eat balanced meals</strong> — include calcium, vitamin D, and protein every day</div></li>
+         <li><span class="ti-emoji">☀️</span><div><strong>Get morning sunshine</strong> — 15–20 minutes, 3× a week for vitamin D</div></li>
+         <li><span class="ti-emoji">🏃</span><div><strong>Exercise regularly</strong> — physical activity keeps bones and muscles strong</div></li>
+         <li><span class="ti-emoji">💧</span><div><strong>Drink enough water</strong> — 8–9 glasses a day to keep everything working</div></li>
+         <li><span class="ti-emoji">🩺</span><div><strong>See a doctor</strong> if you feel weak bones or muscle pain — get advice early!</div></li>
+       </ul>`,
+
+      `<span class="lesson-emoji-big">🌟</span>
+       <div class="lesson-section-title">You're a Body Expert Now!</div>
+       <p class="lesson-text">You've learned so much! Let's review the big ideas:</p>
+       <div class="two-col">
+         <div class="info-card" style="--ic-bg:#FFF3E0;"><span class="ic-emoji">🦴</span><div class="ic-title">206 bones</div><div class="ic-desc">In an adult body, supporting & protecting everything</div></div>
+         <div class="info-card" style="--ic-bg:#E8F5E9;"><span class="ic-emoji">💪</span><div class="ic-title">600+ muscles</div><div class="ic-desc">Controlled by the brain to help you move</div></div>
+         <div class="info-card" style="--ic-bg:#E3F2FD;"><span class="ic-emoji">🔗</span><div class="ic-title">360 joints</div><div class="ic-desc">Connecting bones so you can move and grow</div></div>
+         <div class="info-card" style="--ic-bg:#FCE4EC;"><span class="ic-emoji">🥛</span><div class="ic-title">Calcium + Vitamin D</div><div class="ic-desc">The power duo for strong bones!</div></div>
+       </div>
+       <div class="fact-box">
+         <div class="fact-label">🎮 Ready?</div>
+         <p>Now take the quiz and show what you know! Good luck! 🍀</p>
+       </div>`
+    ]
+  }
+];
+
+// ===================== QUIZ QUESTIONS =====================
+const questions = [
+  { emoji: '🦴', text: 'How many bones does an adult human body have?', options: ['150 bones', '206 bones', '300 bones', '500 bones'], correct: 1, explain: 'An adult body has 206 bones! Babies start with 300, but some fuse together as we grow. 🦴' },
+  { emoji: '👶', text: 'How many bones does a BABY have at birth?', options: ['100 bones', '150 bones', '206 bones', '300 bones'], correct: 3, explain: 'Babies are born with about 300 bones! Some grow together (fuse) as they get older. 👶' },
+  { emoji: '💀', text: 'Which skull bone is the ONLY one that can move?', options: ['Cranium', 'Nasal bone', 'Lower jaw (Mandible)', 'Cheekbone'], correct: 2, explain: 'The Mandible (lower jaw) is the only skull bone that moves — it lets you chew and talk! 🗣️' },
+  { emoji: '🏋️', text: 'What do muscles do when they get SHORTER?', options: ['Relax', 'Contract', 'Break', 'Grow'], correct: 1, explain: 'Muscles CONTRACT (get shorter) to create movement. When they relax, they get longer again. 💪' },
+  { emoji: '⚽', text: 'Which joint lets you move in ALL directions (like a shoulder)?', options: ['Hinge joint', 'Fixed joint', 'Ball and socket joint', 'Slide joint'], correct: 2, explain: 'Ball and socket joints (found in shoulders and hips) allow rotary motion in every direction! ⚽' },
+  { emoji: '🦵', text: 'What is the LONGEST and STRONGEST bone in the body?', options: ['Spine', 'Humerus (upper arm)', 'Femur (thigh bone)', 'Tibia (lower leg)'], correct: 2, explain: 'The Femur (thigh bone) is the longest and strongest bone in your whole body! 🦵' },
+  { emoji: '🥛', text: 'Which mineral makes your bones and teeth STRONG?', options: ['Iron', 'Calcium', 'Sodium', 'Potassium'], correct: 1, explain: 'Calcium is the mineral that makes bones and teeth strong! Found in milk, cheese, and yogurt. 🥛' },
+  { emoji: '☀️', text: 'How does our body make Vitamin D naturally?', options: ['From eating vegetables', 'From drinking water', 'From sunlight on skin', 'From sleeping'], correct: 2, explain: 'Our skin makes Vitamin D when it is exposed to sunlight (especially UVB rays)! ☀️' },
+  { emoji: '💧', text: 'How many glasses of water should children aged 7–9 drink each day?', options: ['2–3 glasses', '4–5 glasses', '6–7 glasses', '8–9 glasses'], correct: 3, explain: 'Children aged 7–9 should drink about 8–9 glasses (1.7 liters) of water per day! 💧' },
+  { emoji: '🧠', text: 'What controls and coordinates our muscle movements?', options: ['The stomach', 'The heart', 'The brain and nervous system', 'The lungs'], correct: 2, explain: 'The brain and nervous system send electrical signals to tell our muscles when and how to move! 🧠' },
+  { emoji: '🔗', text: 'How many joints does the human body have?', options: ['Around 100', 'Around 206', 'Around 360', 'Around 600'], correct: 2, explain: 'The human body has about 360 joints! They connect our bones and allow movement. 🔗' },
+  { emoji: '🥦', text: 'Which vitamin helps our body ABSORB calcium?', options: ['Vitamin A', 'Vitamin B', 'Vitamin C', 'Vitamin D'], correct: 3, explain: 'Vitamin D helps the body absorb calcium — they work as a team for strong bones! 🦴☀️' },
+  { emoji: '💪', text: 'How many muscles does the human body have?', options: ['More than 100', 'More than 300', 'More than 600', 'More than 1000'], correct: 2, explain: 'We have more than 600 muscles in our body! They are made of stretchy fibers. 💪' },
+  { emoji: '🫀', text: 'What does the rib cage PROTECT?', options: ['Brain and eyes', 'Stomach and kidneys', 'Heart and lungs', 'Spine and liver'], correct: 2, explain: 'The rib cage protects the heart and lungs — our most vital organs! 🫀' },
+  { emoji: '🔩', text: 'What does the SPINE (backbone) protect?', options: ['Heart', 'Lungs', 'Brain', 'Spinal cord and nerves'], correct: 3, explain: 'The spine supports your body AND protects the spinal cord and nerves inside it! 🔩' }
+];
+
+// ===================== APP STATE =====================
+let currentLesson = 0;
+let currentLessonPage = 0;
+let currentQuestion = 0;
+let score = 0;
+let answered = false;
+let visitedLessonPages = {};
+
+// ===================== NAVIGATION =====================
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+function goHome() {
+  expRunning = false;
+  if (expRafId) { cancelAnimationFrame(expRafId); expRafId = null; }
+  expRafActive = false;
+  showScreen('home');
+}
+
+function goLesson(idx) {
+  currentLesson = idx;
+  currentLessonPage = 0;
+  if (!visitedLessonPages[idx]) visitedLessonPages[idx] = new Set();
+  visitedLessonPages[idx].add(0);
+  renderLesson();
+  showScreen('lesson');
+}
+
+function renderLesson() {
+  const l = lessons[currentLesson];
+  document.getElementById('lessonTitleBar').textContent = l.title;
+  const dotsEl = document.getElementById('lessonDots');
+  dotsEl.innerHTML = '';
+  l.pages.forEach((_, i) => {
+    const d = document.createElement('div');
+    d.className = 'lesson-dot' + (i === currentLessonPage ? ' active' : (visitedLessonPages[currentLesson]?.has(i) ? ' visited' : ''));
+    d.onclick = () => { currentLessonPage = i; visitedLessonPages[currentLesson].add(i); renderLesson(); };
+    dotsEl.appendChild(d);
+  });
+  document.getElementById('lessonContent').innerHTML = `<div class="lesson-card">${l.pages[currentLessonPage]}</div>`;
+  const prev = document.getElementById('prevLessonBtn');
+  const next = document.getElementById('nextLessonBtn');
+  prev.style.display = currentLessonPage === 0 ? 'none' : 'block';
+  const isLast = currentLessonPage === l.pages.length - 1;
+  next.textContent = isLast ? '🎮 Take the Quiz!' : 'Next →';
+  next.onclick = isLast ? startQuiz : nextLesson;
+}
+
+function nextLesson() {
+  if (currentLessonPage < lessons[currentLesson].pages.length - 1) {
+    currentLessonPage++;
+    visitedLessonPages[currentLesson].add(currentLessonPage);
+    renderLesson();
+  }
+}
+
+function prevLesson() {
+  if (currentLessonPage > 0) { currentLessonPage--; renderLesson(); }
+}
+
+// ===================== QUIZ =====================
+function startQuiz() {
+  currentQuestion = 0;
+  score = 0;
+  answered = false;
+  renderQuestion();
+  showScreen('quiz');
+}
+
+function renderQuestion() {
+  const q = questions[currentQuestion];
+  answered = false;
+  const pct = (currentQuestion / questions.length) * 100;
+  document.getElementById('quizProgressBar').style.width = pct + '%';
+  document.getElementById('questionCounter').textContent = `Question ${currentQuestion + 1} / ${questions.length}`;
+  document.getElementById('scoreTracker').textContent = `⭐ ${score}`;
+  document.getElementById('nextQuestionBtn').classList.remove('show');
+  document.getElementById('questionCard').innerHTML = `
+    <span class="q-type-tag">🧠 Choose the right answer!</span>
+    <span class="q-emoji">${q.emoji}</span>
+    <div class="q-text">${q.text}</div>
+    <div class="options-grid">
+      ${q.options.map((opt, i) => `<button class="option-btn" onclick="selectAnswer(${i})" id="opt${i}">${opt}</button>`).join('')}
+    </div>
+    <div class="feedback-banner" id="feedbackBanner"></div>
+  `;
+}
+
+function selectAnswer(idx) {
+  if (answered) return;
+  answered = true;
+  const q = questions[currentQuestion];
+  const isCorrect = idx === q.correct;
+  if (isCorrect) { score++; document.getElementById('scoreTracker').textContent = `⭐ ${score}`; spawnStars(); }
+  q.options.forEach((_, i) => {
+    const btn = document.getElementById('opt' + i);
+    if (i === q.correct) btn.classList.add('correct');
+    else if (i === idx && !isCorrect) btn.classList.add('wrong');
+    btn.disabled = true;
+  });
+  const fb = document.getElementById('feedbackBanner');
+  fb.className = 'feedback-banner show ' + (isCorrect ? 'correct' : 'wrong');
+  fb.innerHTML = isCorrect ? `🎉 <strong>Correct!</strong> ${q.explain}` : `😅 <strong>Not quite!</strong> ${q.explain}`;
+  const nb = document.getElementById('nextQuestionBtn');
+  nb.classList.add('show');
+  nb.textContent = currentQuestion < questions.length - 1 ? 'Next Question →' : '🏆 See Results!';
+}
+
+function nextQuestion() {
+  currentQuestion++;
+  if (currentQuestion >= questions.length) showResult();
+  else renderQuestion();
+}
+
+function spawnStars() {
+  const emojis = ['⭐', '✨', '🌟', '💫'];
+  for (let i = 0; i < 4; i++) {
+    setTimeout(() => {
+      const s = document.createElement('div');
+      s.className = 'star-burst';
+      s.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+      s.style.left = (20 + Math.random() * 60) + 'vw';
+      s.style.top = (30 + Math.random() * 40) + 'vh';
+      document.body.appendChild(s);
+      setTimeout(() => s.remove(), 1300);
+    }, i * 120);
+  }
+}
+
+function showResult() {
+  const pct = score / questions.length;
+  let trophy, title, msg, stars;
+  if (pct >= 0.9) { trophy = '🏆'; title = "AMAZING! You're a Body Expert!"; msg = 'You got nearly everything right! Your musculoskeletal system is proud of you! 🦴💪'; stars = '⭐⭐⭐'; }
+  else if (pct >= 0.7) { trophy = '🥈'; title = 'Great Job, Explorer!'; msg = 'You know a lot about your body! Review the lessons and try again to get a perfect score! 📚'; stars = '⭐⭐'; }
+  else if (pct >= 0.5) { trophy = '🥉'; title = 'Good Effort!'; msg = "You're learning well! Go back and review the lessons, then try again! You can do it! 💪"; stars = '⭐'; }
+  else { trophy = '📚'; title = 'Keep Learning!'; msg = "Don't give up! Read through all the lessons carefully, then try the quiz again. You've got this! 🌟"; stars = '⭐'; }
+  document.getElementById('resultTrophy').textContent = trophy;
+  document.getElementById('resultTitle').textContent = title;
+  document.getElementById('resultScore').textContent = `${score}/${questions.length}`;
+  document.getElementById('resultStars').textContent = stars;
+  document.getElementById('resultMsg').textContent = msg;
+  showScreen('result');
+  if (pct >= 0.7) { for (let i = 0; i < 8; i++) setTimeout(spawnStars, i * 300); }
+}
+
+// ===================== EXPLORER STATE =====================
+let expReady = false;
+let expRunning = false;
+let expRafId = null;
+let expRafActive = false;
+
+function goExplorer() {
+  if (typeof THREE === 'undefined') {
+    setTimeout(goExplorer, 150);
+    return;
+  }
+  showScreen('explorer');
+  if (!expReady) {
+    initExplorer();
+    expReady = true;
+  }
+  expRunning = true;
+  if (!expRafActive) {
+    expRafActive = true;
+    animateExplorer();
+  }
+}
+
+// ===================== BONE DATA =====================
+const BONES = [
+  { id: 'skull', name: 'Skull', latin: 'Cranium', emoji: '💀', desc: 'The skull protects your brain and sense organs. It gives shape to your face and head.', fun: '⚡ Fun Fact: Your skull is made of 22 bones fused together! Only the lower jaw (mandible) can move.', group: 'head' },
+  { id: 'jaw', name: 'Lower Jaw', latin: 'Mandible', emoji: '🗣️', desc: 'The mandible is the only bone in your skull that MOVES! It helps you eat and talk.', fun: '⚡ Fun Fact: The mandible is the strongest bone in your face. It holds your lower teeth in place!', group: 'head' },
+  { id: 'spine', name: 'Spine', latin: 'Vertebral Column', emoji: '🔩', desc: 'Your spine is a column of 33 small bones (vertebrae). It supports your whole body and lets you bend and twist.', fun: '⚡ Fun Fact: The spine protects your spinal cord — the super-highway for messages between your brain and body!', group: 'torso' },
+  { id: 'ribs', name: 'Rib Cage', latin: 'Costae', emoji: '🫀', desc: 'Your 12 pairs of ribs form a cage around your heart and lungs, keeping them safe!', fun: '⚡ Fun Fact: You have 24 ribs total — 12 on each side! They also help you breathe by expanding as you inhale.', group: 'torso' },
+  { id: 'sternum', name: 'Sternum', latin: 'Breastbone', emoji: '🛡️', desc: 'The sternum is the flat bone in the center of your chest. The ribs connect to it at the front.', fun: "⚡ Fun Fact: Doctors can press on the sternum to check the heart — it's right behind it!", group: 'torso' },
+  { id: 'pelvis', name: 'Hip Bone', latin: 'Pelvis', emoji: '🏋️', desc: 'The pelvis connects your spine to your legs. It also protects your digestive and reproductive organs.', fun: '⚡ Fun Fact: The pelvis is actually 3 bones fused together. It acts like a bowl shape to hold your organs!', group: 'torso' },
+  { id: 'humerus', name: 'Upper Arm', latin: 'Humerus', emoji: '💪', desc: 'The humerus runs from your shoulder to your elbow. It connects to the shoulder in a ball-and-socket joint!', fun: '⚡ Fun Fact: "Humerus" sounds like "humorous" (funny)! When someone says "that\'s not so humerus," they\'re making a bone joke! 😄', group: 'arm' },
+  { id: 'radius', name: 'Lower Arm', latin: 'Radius & Ulna', emoji: '🦾', desc: 'Two bones make up your lower arm: the radius and ulna. They let you rotate your wrist!', fun: '⚡ Fun Fact: When you turn your palm up then down, the radius is actually rotating around the ulna!', group: 'arm' },
+  { id: 'femur', name: 'Thigh Bone', latin: 'Femur', emoji: '🦵', desc: 'The femur is the LONGEST and STRONGEST bone in your whole body! It runs from your hip to your knee.', fun: "⚡ Fun Fact: The femur can support up to 30 times your body weight! That's why it's so thick and strong. 💪", group: 'leg' },
+  { id: 'patella', name: 'Kneecap', latin: 'Patella', emoji: '🦿', desc: 'The patella is a small round bone that protects your knee joint. It sits in front of the knee.', fun: '⚡ Fun Fact: Babies are born WITHOUT kneecaps! The patella starts as cartilage and hardens into bone between ages 3–5.', group: 'leg' },
+  { id: 'tibia', name: 'Lower Leg', latin: 'Tibia & Fibula', emoji: '🦴', desc: 'Two bones form your lower leg: the tibia (shin bone) and fibula. The tibia bears most of your body weight.', fun: '⚡ Fun Fact: The tibia is the second longest bone in your body after the femur. You can feel your shin bone through your skin!', group: 'leg' },
+  { id: 'clavicle', name: 'Collarbone', latin: 'Clavicle', emoji: '🦋', desc: 'The clavicle connects your shoulder to your chest. It helps you move your arm in wide circles.', fun: '⚡ Fun Fact: The clavicle is one of the most commonly broken bones in children — usually from falling on an outstretched hand!', group: 'torso' },
+];
+
+// ===================== THREE.JS VARIABLES =====================
+let expScene, expCamera, expRenderer, skeletonGroup;
+let expIsDragging = false, expPrevMouse = { x: 0, y: 0 };
+let autoRotate = true;
+let xrayMode = false;
+let selectedBone = null;
+let boneListOpen = false;
+let boneMeshes = {};
+let expRaycaster, expMouse;
+let hasInteracted = false;
+
+const BONE_COLORS = { default: 0xF0E0C8, highlight: 0x7DF9FF, xray: 0x4FC3F7 };
+
+// ===================== EXPLORER INIT =====================
+function initExplorer() {
+  expScene = new THREE.Scene();
+  expScene.background = new THREE.Color(0x08081a);
+  expScene.fog = new THREE.FogExp2(0x08081a, 0.018);
+
+  const w = window.innerWidth, h = window.innerHeight;
+  expCamera = new THREE.PerspectiveCamera(45, w / h, 0.1, 1000);
+  expCamera.position.set(0, 1.2, 9);
+  expCamera.lookAt(0, 1, 0);
+
+  expRenderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+  expRenderer.setSize(w, h);
+  expRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  expRenderer.shadowMap.enabled = true;
+  expRenderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  document.getElementById('canvas-container').appendChild(expRenderer.domElement);
+
+  const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+  expScene.add(ambientLight);
+  const dirLight = new THREE.DirectionalLight(0xfff0e0, 1.2);
+  dirLight.position.set(5, 10, 5);
+  dirLight.castShadow = true;
+  expScene.add(dirLight);
+  const rimLight = new THREE.DirectionalLight(0x7DF9FF, 0.4);
+  rimLight.position.set(-5, 5, -5);
+  expScene.add(rimLight);
+  const fillLight = new THREE.PointLight(0x4488ff, 0.5, 20);
+  fillLight.position.set(-3, 3, 3);
+  expScene.add(fillLight);
+
+  const gridHelper = new THREE.GridHelper(20, 20, 0x1a1a3a, 0x1a1a3a);
+  gridHelper.position.y = -2.5;
+  expScene.add(gridHelper);
+
+  expRaycaster = new THREE.Raycaster();
+  expMouse = new THREE.Vector2();
+
+  buildSkeleton();
+  buildBoneList();
+  setupExpInteractions();
+
+  // Prevent iOS rubber-band scroll on explorer
+  document.getElementById('explorer').addEventListener('touchmove', e => e.preventDefault(), { passive: false });
+
+  setTimeout(() => {
+    const loading = document.getElementById('exp-loading');
+    loading.style.opacity = '0';
+    setTimeout(() => loading.style.display = 'none', 500);
+  }, 1800);
+}
+
+// ===================== BUILD SKELETON =====================
+function buildSkeleton() {
+  skeletonGroup = new THREE.Group();
+  expScene.add(skeletonGroup);
+
+  function mat(color, opacity) {
+    return new THREE.MeshPhongMaterial({
+      color,
+      shininess: 80,
+      specular: new THREE.Color(0x444444),
+      transparent: opacity !== undefined && opacity < 1,
+      opacity: opacity !== undefined ? opacity : 1,
+    });
+  }
+
+  function addMesh(mesh, boneId) {
+    mesh.castShadow = true;
+    mesh.userData.boneId = boneId;
+    if (!boneMeshes[boneId]) boneMeshes[boneId] = [];
+    boneMeshes[boneId].push(mesh);
+    skeletonGroup.add(mesh);
+  }
+
+  const bc = BONE_COLORS.default;
+
+  // Skull
+  const skullGeo = new THREE.SphereGeometry(0.52, 16, 12);
+  skullGeo.applyMatrix4(new THREE.Matrix4().makeScale(1, 1.1, 0.95));
+  const skull = new THREE.Mesh(skullGeo, mat(bc));
+  skull.position.set(0, 4.55, 0);
+  addMesh(skull, 'skull');
+  [-0.18, 0.18].forEach(x => {
+    const socket = new THREE.Mesh(new THREE.SphereGeometry(0.1, 8, 8), mat(0x222244));
+    socket.position.set(x, 4.55, 0.47);
+    socket.userData.boneId = 'skull';
+    boneMeshes['skull'].push(socket);
+    skeletonGroup.add(socket);
+  });
+  const nose = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.07, 0.1, 8), mat(0x333355));
+  nose.position.set(0, 4.3, 0.5);
+  nose.userData.boneId = 'skull';
+  boneMeshes['skull'].push(nose);
+  skeletonGroup.add(nose);
+
+  // Jaw
+  const jawParts = [];
+  const jawMain = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.15, 0.5), mat(bc));
+  jawMain.position.set(0, 4.08 - 0.08, 0.1);
+  const jawLeft = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.35, 0.12), mat(bc));
+  jawLeft.position.set(-0.29, 4.18, 0.05);
+  const jawRight = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.35, 0.12), mat(bc));
+  jawRight.position.set(0.29, 4.18, 0.05);
+  [jawMain, jawLeft, jawRight].forEach(m => { m.userData.boneId = 'jaw'; boneMeshes['jaw'] = boneMeshes['jaw'] || []; boneMeshes['jaw'].push(m); skeletonGroup.add(m); });
+  for (let i = -3; i <= 3; i++) {
+    const tooth = new THREE.Mesh(new THREE.BoxGeometry(0.07, 0.1, 0.07), mat(0xffffff));
+    tooth.position.set(i * 0.09, 4.05, 0.28);
+    tooth.userData.boneId = 'jaw';
+    boneMeshes['jaw'].push(tooth);
+    skeletonGroup.add(tooth);
+  }
+
+  // Neck vertebrae
+  for (let i = 0; i < 4; i++) {
+    const v = new THREE.Mesh(new THREE.CylinderGeometry(0.13, 0.14, 0.18, 8), mat(bc));
+    v.position.set(0, 3.85 - i * 0.22, 0);
+    addMesh(v, 'spine');
+    const sp = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.04, 0.22), mat(bc));
+    sp.position.set(0, 3.85 - i * 0.22, -0.18);
+    sp.userData.boneId = 'spine';
+    boneMeshes['spine'].push(sp);
+    skeletonGroup.add(sp);
+  }
+
+  // Clavicles
+  [-1, 1].forEach(side => {
+    const pts = [];
+    for (let t = 0; t <= 10; t++) {
+      pts.push(new THREE.Vector3(side * (0.05 + t * 0.065), 3.3 + Math.sin(t * 0.3) * 0.05, -t * 0.015));
+    }
+    const curve = new THREE.CatmullRomCurve3(pts);
+    addMesh(new THREE.Mesh(new THREE.TubeGeometry(curve, 12, 0.055, 8, false), mat(bc)), 'clavicle');
+  });
+
+  // Sternum
+  addMesh(new THREE.Mesh(new THREE.BoxGeometry(0.22, 1.2, 0.12), mat(bc)), 'sternum');
+  const stern = boneMeshes['sternum'][0];
+  stern.position.set(0, 2.9, 0.3);
+
+  // Ribs
+  for (let r = 0; r < 12; r++) {
+    const y = 3.2 - r * 0.2;
+    const ribWidth = 0.85 - r * 0.04;
+    const ribHeight = Math.max(0.035, 0.08 - r * 0.002);
+    [-1, 1].forEach(side => {
+      const ribPts = [];
+      for (let t = 0; t <= 16; t++) {
+        const angle = (t / 16) * Math.PI;
+        ribPts.push(new THREE.Vector3(side * (0.25 + Math.sin(angle) * ribWidth), y - Math.sin(angle * 0.7) * 0.15, Math.cos(angle) * 0.35));
+      }
+      addMesh(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(ribPts), 12, ribHeight, 6, false), mat(bc)), 'ribs');
+    });
+  }
+
+  // Thoracic & lumbar spine
+  for (let i = 0; i < 17; i++) {
+    const r2 = 0.14 + (i > 12 ? (i - 12) * 0.01 : 0);
+    const v = new THREE.Mesh(new THREE.CylinderGeometry(r2, r2 + 0.01, 0.19, 8), mat(bc));
+    v.position.set(0, 3.15 - i * 0.22, 0);
+    addMesh(v, 'spine');
+    const sp = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.05, 0.28), mat(bc));
+    sp.position.set(0, 3.15 - i * 0.22, -0.2);
+    sp.userData.boneId = 'spine';
+    boneMeshes['spine'].push(sp);
+    skeletonGroup.add(sp);
+  }
+
+  // Pelvis
+  const pelvisBase = new THREE.Mesh(new THREE.BoxGeometry(1.6, 0.3, 0.7), mat(bc));
+  pelvisBase.position.set(0, -0.75, 0);
+  addMesh(pelvisBase, 'pelvis');
+  [-0.62, 0.62].forEach(x => {
+    const ilium = new THREE.Mesh(new THREE.SphereGeometry(0.38, 10, 8), mat(bc));
+    ilium.scale.set(1, 0.6, 0.55);
+    ilium.position.set(x, -0.45, -0.08);
+    addMesh(ilium, 'pelvis');
+    const socket = new THREE.Mesh(new THREE.SphereGeometry(0.16, 8, 8), mat(0x222244));
+    socket.position.set(x, -0.85, 0.32);
+    socket.userData.boneId = 'pelvis';
+    boneMeshes['pelvis'].push(socket);
+    skeletonGroup.add(socket);
+  });
+  const sacrum = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.18, 0.5, 8), mat(bc));
+  sacrum.position.set(0, -0.68, -0.1);
+  addMesh(sacrum, 'spine');
+
+  // Shoulder blades
+  [-1, 1].forEach(side => {
+    const scapula = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.55, 0.08), mat(bc));
+    scapula.position.set(side * 0.65, 2.85, -0.3);
+    scapula.rotation.y = side * 0.2;
+    addMesh(scapula, 'clavicle');
+  });
+
+  // Humerus
+  [-1, 1].forEach(side => {
+    const ball = new THREE.Mesh(new THREE.SphereGeometry(0.16, 10, 8), mat(bc));
+    ball.position.set(side * 0.92, 3.1, 0);
+    addMesh(ball, 'humerus');
+    const hum = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.1, 1.2, 8), mat(bc));
+    hum.position.set(side * 1.08, 2.4, 0.05);
+    hum.rotation.z = side * 0.12;
+    addMesh(hum, 'humerus');
+    const elbow = new THREE.Mesh(new THREE.SphereGeometry(0.13, 8, 8), mat(bc));
+    elbow.position.set(side * 1.17, 1.75, 0.1);
+    addMesh(elbow, 'humerus');
+  });
+
+  // Radius & Ulna
+  [-1, 1].forEach(side => {
+    const rad = new THREE.Mesh(new THREE.CylinderGeometry(0.055, 0.07, 1.0, 8), mat(bc));
+    rad.position.set(side * (1.22 + 0.06), 1.2, 0.1);
+    rad.rotation.z = side * 0.14;
+    addMesh(rad, 'radius');
+    const uln = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.065, 1.05, 8), mat(bc));
+    uln.position.set(side * (1.12 - 0.06), 1.2, 0.05);
+    uln.rotation.z = side * 0.14;
+    addMesh(uln, 'radius');
+    const wrist = new THREE.Mesh(new THREE.BoxGeometry(0.25, 0.1, 0.16), mat(bc));
+    wrist.position.set(side * 1.2, 0.63, 0.08);
+    addMesh(wrist, 'radius');
+    for (let f = 0; f < 4; f++) {
+      const mc = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.03, 0.32, 6), mat(bc));
+      mc.position.set(side * (1.0 + f * 0.055 * side), 0.35, 0.04);
+      mc.rotation.z = side * (0.2 + f * 0.04);
+      addMesh(mc, 'radius');
+    }
+  });
+
+  // Femur
+  [-1, 1].forEach(side => {
+    const fHead = new THREE.Mesh(new THREE.SphereGeometry(0.17, 10, 8), mat(bc));
+    fHead.position.set(side * 0.48, -1.08, 0.02);
+    addMesh(fHead, 'femur');
+    const femur = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.12, 1.55, 10), mat(bc));
+    femur.position.set(side * 0.62, -1.88, 0.02);
+    femur.rotation.z = side * 0.08;
+    addMesh(femur, 'femur');
+    const kneeJoint = new THREE.Mesh(new THREE.SphereGeometry(0.17, 10, 8), mat(bc));
+    kneeJoint.position.set(side * 0.67, -2.7, 0.02);
+    addMesh(kneeJoint, 'femur');
+  });
+
+  // Patella
+  [-1, 1].forEach(side => {
+    const pat = new THREE.Mesh(new THREE.SphereGeometry(0.1, 8, 8), mat(bc));
+    pat.scale.set(1, 0.8, 0.6);
+    pat.position.set(side * 0.67, -2.7, 0.18);
+    addMesh(pat, 'patella');
+  });
+
+  // Tibia & Fibula
+  [-1, 1].forEach(side => {
+    const tibia = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.07, 1.3, 8), mat(bc));
+    tibia.position.set(side * (0.62 + 0.03), -3.41, 0.02);
+    addMesh(tibia, 'tibia');
+    const fibula = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 1.25, 6), mat(bc));
+    fibula.position.set(side * (0.62 + 0.14 * side), -3.43, -0.02);
+    addMesh(fibula, 'tibia');
+    const ankle = new THREE.Mesh(new THREE.SphereGeometry(0.12, 8, 8), mat(bc));
+    ankle.position.set(side * 0.64, -4.1, 0);
+    addMesh(ankle, 'tibia');
+    const foot = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.1, 0.55), mat(bc));
+    foot.position.set(side * 0.64, -4.25, 0.2);
+    addMesh(foot, 'tibia');
+    for (let t = 0; t < 4; t++) {
+      const toe = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.025, 0.18, 6), mat(bc));
+      toe.rotation.x = Math.PI / 2;
+      toe.position.set(side * (0.52 + t * 0.06 * side), -4.27, 0.56 + t * 0.02);
+      addMesh(toe, 'tibia');
+    }
+  });
+
+  skeletonGroup.position.y = 0.8;
+}
+
+// ===================== BONE LIST UI =====================
+function buildBoneList() {
+  const container = document.getElementById('boneListItems');
+  const groups = { head: '🗣️ Head', torso: '🫀 Torso', arm: '🦾 Arms', leg: '🦵 Legs' };
+  const grouped = {};
+  BONES.forEach(b => { if (!grouped[b.group]) grouped[b.group] = []; grouped[b.group].push(b); });
+  Object.entries(groups).forEach(([gk, gname]) => {
+    if (!grouped[gk]) return;
+    const gTitle = document.createElement('div');
+    gTitle.style.cssText = 'font-size:0.75rem;color:rgba(125,249,255,0.6);font-weight:800;padding:8px 6px 4px;letter-spacing:0.5px;';
+    gTitle.textContent = gname;
+    container.appendChild(gTitle);
+    grouped[gk].forEach(bone => {
+      const item = document.createElement('div');
+      item.className = 'bl-item';
+      item.id = 'bl_' + bone.id;
+      const dot = document.createElement('div');
+      dot.className = 'bl-dot';
+      dot.style.background = '#' + BONE_COLORS.default.toString(16).padStart(6, '0');
+      item.appendChild(dot);
+      item.appendChild(document.createTextNode(bone.name));
+      item.onclick = () => selectBoneById(bone.id);
+      container.appendChild(item);
+    });
+  });
+}
+
+// ===================== EXPLORER INTERACTIONS =====================
+function setupExpInteractions() {
+  const canvas = expRenderer.domElement;
+  let touchMoved = false, touchStart = null;
+
+  canvas.addEventListener('touchstart', e => {
+    e.preventDefault();
+    const t = e.touches[0];
+    touchStart = { x: t.clientX, y: t.clientY };
+    touchMoved = false;
+    expPrevMouse = { x: t.clientX, y: t.clientY };
+  }, { passive: false });
+
+  canvas.addEventListener('touchmove', e => {
+    e.preventDefault();
+    const t = e.touches[0];
+    const dx = t.clientX - expPrevMouse.x;
+    const dy = t.clientY - expPrevMouse.y;
+    if (Math.abs(dx) > 3 || Math.abs(dy) > 3) touchMoved = true;
+    skeletonGroup.rotation.y += dx * 0.012;
+    skeletonGroup.rotation.x = Math.max(-0.8, Math.min(0.8, skeletonGroup.rotation.x + dy * 0.008));
+    expPrevMouse = { x: t.clientX, y: t.clientY };
+    hideHint();
+  }, { passive: false });
+
+  canvas.addEventListener('touchend', () => {
+    if (!touchMoved && touchStart) {
+      const rect = canvas.getBoundingClientRect();
+      expMouse.x = ((touchStart.x - rect.left) / rect.width) * 2 - 1;
+      expMouse.y = -((touchStart.y - rect.top) / rect.height) * 2 + 1;
+      handleExpClick();
+    }
+  });
+
+  canvas.addEventListener('mousedown', e => {
+    expIsDragging = true;
+    expPrevMouse = { x: e.clientX, y: e.clientY };
+    touchMoved = false;
+  });
+  canvas.addEventListener('mousemove', e => {
+    if (!expIsDragging) return;
+    const dx = e.clientX - expPrevMouse.x;
+    const dy = e.clientY - expPrevMouse.y;
+    if (Math.abs(dx) > 2 || Math.abs(dy) > 2) touchMoved = true;
+    skeletonGroup.rotation.y += dx * 0.012;
+    skeletonGroup.rotation.x = Math.max(-0.8, Math.min(0.8, skeletonGroup.rotation.x + dy * 0.008));
+    expPrevMouse = { x: e.clientX, y: e.clientY };
+    hideHint();
+  });
+  canvas.addEventListener('mouseup', e => {
+    if (!touchMoved) {
+      const rect = canvas.getBoundingClientRect();
+      expMouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+      expMouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+      handleExpClick();
+    }
+    expIsDragging = false;
+  });
+
+  window.addEventListener('resize', () => {
+    if (!expRunning) return;
+    expCamera.aspect = window.innerWidth / window.innerHeight;
+    expCamera.updateProjectionMatrix();
+    expRenderer.setSize(window.innerWidth, window.innerHeight);
+  });
+}
+
+function hideHint() {
+  if (!hasInteracted) {
+    hasInteracted = true;
+    document.getElementById('rotateHint').classList.add('hide');
+  }
+}
+
+function handleExpClick() {
+  expRaycaster.setFromCamera(expMouse, expCamera);
+  const allMeshes = [];
+  Object.values(boneMeshes).forEach(arr => arr.forEach(m => allMeshes.push(m)));
+  const intersects = expRaycaster.intersectObjects(allMeshes);
+  if (intersects.length > 0) {
+    const boneId = intersects[0].object.userData.boneId;
+    if (boneId) { selectBoneById(boneId); return; }
+  }
+  deselectBone();
+}
+
+function selectBoneById(boneId) {
+  autoRotate = false;
+  const btnR = document.getElementById('btnRotate');
+  if (btnR) { btnR.textContent = '▶ Auto-Rotate'; btnR.classList.remove('active'); }
+
+  if (selectedBone) {
+    resetBoneColor(selectedBone);
+    const prev = document.getElementById('bl_' + selectedBone);
+    if (prev) prev.classList.remove('selected');
+  }
+  selectedBone = boneId;
+
+  if (boneMeshes[boneId]) {
+    boneMeshes[boneId].forEach(m => {
+      if (m.userData.boneId === boneId) {
+        m.material = new THREE.MeshPhongMaterial({
+          color: 0x7DF9FF, shininess: 120, emissive: new THREE.Color(0x1a4a55),
+          transparent: xrayMode, opacity: xrayMode ? 0.7 : 1,
+        });
+      }
+    });
+  }
+
+  const item = document.getElementById('bl_' + boneId);
+  if (item) item.classList.add('selected');
+
+  const bone = BONES.find(b => b.id === boneId);
+  if (bone) {
+    document.getElementById('panelEmoji').textContent = bone.emoji;
+    document.getElementById('panelName').textContent = bone.name;
+    document.getElementById('panelLatin').textContent = bone.latin;
+    document.getElementById('panelDesc').textContent = bone.desc;
+    document.getElementById('panelFun').textContent = bone.fun;
+    document.getElementById('bonePanel').classList.add('show');
+  }
+  hideHint();
+}
+
+function deselectBone() {
+  if (selectedBone) {
+    resetBoneColor(selectedBone);
+    const item = document.getElementById('bl_' + selectedBone);
+    if (item) item.classList.remove('selected');
+    selectedBone = null;
+  }
+  document.getElementById('bonePanel').classList.remove('show');
+}
+
+function resetBoneColor(boneId) {
+  if (!boneMeshes[boneId]) return;
+  boneMeshes[boneId].forEach(m => {
+    if (m.userData.boneId !== boneId) return;
+    const col = m.material && m.material.color;
+    if (col && (col.getHex() === 0x222244 || col.getHex() === 0x333355 || col.getHex() === 0xffffff)) return;
+    m.material = new THREE.MeshPhongMaterial({
+      color: xrayMode ? BONE_COLORS.xray : BONE_COLORS.default,
+      shininess: 80,
+      specular: new THREE.Color(0x444444),
+      transparent: xrayMode,
+      opacity: xrayMode ? 0.55 : 1,
+    });
+  });
+}
+
+function closePanel() { deselectBone(); }
+
+function toggleAutoRotate() {
+  autoRotate = !autoRotate;
+  const btn = document.getElementById('btnRotate');
+  btn.textContent = autoRotate ? '⏸ Auto-Rotate' : '▶ Auto-Rotate';
+  btn.classList.toggle('active', autoRotate);
+}
+
+function resetCamera() {
+  skeletonGroup.rotation.set(0, 0, 0);
+  expCamera.position.set(0, 1.2, 9);
+  expCamera.lookAt(0, 1, 0);
+  deselectBone();
+}
+
+function toggleXray() {
+  xrayMode = !xrayMode;
+  const btn = document.getElementById('btnXray');
+  btn.classList.toggle('active', xrayMode);
+  btn.textContent = xrayMode ? '🔬 Normal' : '💀 X-Ray Mode';
+  Object.keys(boneMeshes).forEach(boneId => {
+    if (boneId === selectedBone) return;
+    boneMeshes[boneId].forEach(m => {
+      const col = m.material && m.material.color;
+      if (col && (col.getHex() === 0x222244 || col.getHex() === 0x333355 || col.getHex() === 0xffffff)) return;
+      if (m.userData.boneId) {
+        m.material = new THREE.MeshPhongMaterial({
+          color: xrayMode ? BONE_COLORS.xray : BONE_COLORS.default,
+          shininess: xrayMode ? 30 : 80,
+          transparent: xrayMode,
+          opacity: xrayMode ? 0.55 : 1,
+        });
+      }
+    });
+  });
+  expScene.background = new THREE.Color(xrayMode ? 0x030312 : 0x08081a);
+  expScene.fog = new THREE.FogExp2(xrayMode ? 0x030312 : 0x08081a, 0.018);
+}
+
+function toggleBoneList() {
+  boneListOpen = !boneListOpen;
+  document.getElementById('boneList').classList.toggle('open', boneListOpen);
+  document.getElementById('btnList').classList.toggle('active', boneListOpen);
+}
+
+// ===================== ANIMATION LOOP =====================
+let expT = 0;
+function animateExplorer() {
+  if (!expRunning) { expRafActive = false; return; }
+  expRafId = requestAnimationFrame(animateExplorer);
+  expT += 0.01;
+  if (autoRotate && skeletonGroup) skeletonGroup.rotation.y += 0.005;
+  if (skeletonGroup) skeletonGroup.position.y = 0.8 + Math.sin(expT * 0.8) * 0.04;
+  expRenderer.render(expScene, expCamera);
+}
+</script>
+
+<!-- Three.js loads after quiz is interactive — explorer uses lazy init -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+</body>
+</html>
