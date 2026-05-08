@@ -3,7 +3,17 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Body Explorers! 🦴💪</title>
+<title>Musculoskelefun! 🦴</title>
+
+<!-- PWA / Add to Home Screen -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Musculoskelefun!">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="application-name" content="Musculoskelefun!">
+<meta name="theme-color" content="#FF8C42">
+<link rel="apple-touch-icon" id="appIcon" href="">
+<link rel="manifest" href="manifest.json">
+
 <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
 /* ===== RESET ===== */
@@ -900,7 +910,7 @@ body {
 
   <div id="rotateHint">
     <div class="hint-hand">👆</div>
-    <div class="hint-text">Drag to rotate • Tap to learn</div>
+    <div class="hint-text">Drag to rotate • Pinch to zoom • Tap to learn</div>
   </div>
 
   <div id="bonePanel">
@@ -924,9 +934,11 @@ body {
   <div id="exp-controls">
     <div class="controls-row">
       <button class="ctrl-btn" id="btnRotate" onclick="toggleAutoRotate()">⏸ Auto-Rotate</button>
-      <button class="ctrl-btn" onclick="resetCamera()">🔄 Reset View</button>
-      <button class="ctrl-btn" id="btnXray" onclick="toggleXray()">💀 X-Ray Mode</button>
-      <button class="ctrl-btn" id="btnList" onclick="toggleBoneList()">📋 Bone List</button>
+      <button class="ctrl-btn" onclick="resetCamera()">🔄 Reset</button>
+      <button class="ctrl-btn" onclick="zoomIn()">🔍 +</button>
+      <button class="ctrl-btn" onclick="zoomOut()">🔍 −</button>
+      <button class="ctrl-btn" id="btnXray" onclick="toggleXray()">💀 X-Ray</button>
+      <button class="ctrl-btn" id="btnList" onclick="toggleBoneList()">📋 Bones</button>
     </div>
   </div>
 
@@ -1650,13 +1662,27 @@ function buildBoneList() {
   });
 }
 
+// ===================== ZOOM HELPERS =====================
+function getPinchDist(touches) {
+  const dx = touches[0].clientX - touches[1].clientX;
+  const dy = touches[0].clientY - touches[1].clientY;
+  return Math.sqrt(dx * dx + dy * dy);
+}
+function zoomIn()  { if (expCamera) expCamera.position.z = Math.max(3.5, expCamera.position.z - 1.2); }
+function zoomOut() { if (expCamera) expCamera.position.z = Math.min(16,  expCamera.position.z + 1.2); }
+
 // ===================== EXPLORER INTERACTIONS =====================
 function setupExpInteractions() {
   const canvas = expRenderer.domElement;
-  let touchMoved = false, touchStart = null;
+  let touchMoved = false, touchStart = null, lastPinchDist = null;
 
   canvas.addEventListener('touchstart', e => {
     e.preventDefault();
+    if (e.touches.length === 2) {
+      lastPinchDist = getPinchDist(e.touches);
+      touchMoved = true; // prevent tap-click during pinch
+      return;
+    }
     const t = e.touches[0];
     touchStart = { x: t.clientX, y: t.clientY };
     touchMoved = false;
@@ -1665,6 +1691,18 @@ function setupExpInteractions() {
 
   canvas.addEventListener('touchmove', e => {
     e.preventDefault();
+    // Pinch to zoom
+    if (e.touches.length === 2) {
+      const dist = getPinchDist(e.touches);
+      if (lastPinchDist !== null) {
+        const delta = lastPinchDist - dist;
+        expCamera.position.z = Math.max(3.5, Math.min(16, expCamera.position.z + delta * 0.04));
+      }
+      lastPinchDist = dist;
+      hideHint();
+      return;
+    }
+    lastPinchDist = null;
     const t = e.touches[0];
     const dx = t.clientX - expPrevMouse.x;
     const dy = t.clientY - expPrevMouse.y;
@@ -1675,7 +1713,8 @@ function setupExpInteractions() {
     hideHint();
   }, { passive: false });
 
-  canvas.addEventListener('touchend', () => {
+  canvas.addEventListener('touchend', e => {
+    if (e.touches.length < 2) lastPinchDist = null;
     if (!touchMoved && touchStart) {
       const rect = canvas.getBoundingClientRect();
       expMouse.x = ((touchStart.x - rect.left) / rect.width) * 2 - 1;
@@ -1683,6 +1722,12 @@ function setupExpInteractions() {
       handleExpClick();
     }
   });
+
+  // Scroll-wheel zoom (mouse / trackpad)
+  canvas.addEventListener('wheel', e => {
+    e.preventDefault();
+    expCamera.position.z = Math.max(3.5, Math.min(16, expCamera.position.z + e.deltaY * 0.015));
+  }, { passive: false });
 
   canvas.addEventListener('mousedown', e => {
     expIsDragging = true;
@@ -1845,6 +1890,101 @@ function toggleBoneList() {
   document.getElementById('boneList').classList.toggle('open', boneListOpen);
   document.getElementById('btnList').classList.toggle('active', boneListOpen);
 }
+
+// ===================== APP ICON GENERATOR =====================
+// Draws a PNG icon at runtime — used for apple-touch-icon & manifest
+(function generateAppIcon() {
+  try {
+    const S = 512;
+    const c = document.createElement('canvas');
+    c.width = c.height = S;
+    const ctx = c.getContext('2d');
+
+    // Background: orange gradient
+    const g = ctx.createLinearGradient(0, 0, S, S);
+    g.addColorStop(0, '#FFB347');
+    g.addColorStop(1, '#E65C00');
+    // Rounded-rect background
+    const r = 96;
+    ctx.beginPath();
+    ctx.moveTo(r, 0); ctx.lineTo(S - r, 0);
+    ctx.quadraticCurveTo(S, 0, S, r);
+    ctx.lineTo(S, S - r); ctx.quadraticCurveTo(S, S, S - r, S);
+    ctx.lineTo(r, S); ctx.quadraticCurveTo(0, S, 0, S - r);
+    ctx.lineTo(0, r); ctx.quadraticCurveTo(0, 0, r, 0);
+    ctx.closePath();
+    ctx.fillStyle = g;
+    ctx.fill();
+
+    // Subtle inner highlight
+    ctx.beginPath();
+    ctx.ellipse(200, 155, 180, 115, 0, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(255,255,255,0.09)';
+    ctx.fill();
+
+    // Bone (white)
+    ctx.fillStyle = 'white';
+    // shaft
+    const sx = 148, sy = 236, sw = 216, sh = 40, sr = 20;
+    ctx.beginPath();
+    ctx.moveTo(sx + sr, sy);
+    ctx.lineTo(sx + sw - sr, sy);
+    ctx.quadraticCurveTo(sx + sw, sy, sx + sw, sy + sr);
+    ctx.lineTo(sx + sw, sy + sh - sr);
+    ctx.quadraticCurveTo(sx + sw, sy + sh, sx + sw - sr, sy + sh);
+    ctx.lineTo(sx + sr, sy + sh);
+    ctx.quadraticCurveTo(sx, sy + sh, sx, sy + sh - sr);
+    ctx.lineTo(sx, sy + sr);
+    ctx.quadraticCurveTo(sx, sy, sx + sr, sy);
+    ctx.closePath();
+    ctx.fill();
+    // knobs: left-top, left-bottom, right-top, right-bottom
+    [[162,224],[162,288],[350,224],[350,288]].forEach(([kx, ky]) => {
+      ctx.beginPath(); ctx.arc(kx, ky, 38, 0, Math.PI * 2); ctx.fill();
+    });
+
+    // Sparkle star (top-right)
+    function star(cx, cy, r1, r2, pts) {
+      ctx.beginPath();
+      for (let i = 0; i < pts * 2; i++) {
+        const angle = (i * Math.PI) / pts - Math.PI / 2;
+        const r = i % 2 === 0 ? r1 : r2;
+        i === 0 ? ctx.moveTo(cx + r * Math.cos(angle), cy + r * Math.sin(angle))
+                : ctx.lineTo(cx + r * Math.cos(angle), cy + r * Math.sin(angle));
+      }
+      ctx.closePath(); ctx.fill();
+    }
+    ctx.fillStyle = 'rgba(255,255,255,0.9)';
+    star(426, 96, 26, 11, 4);
+    ctx.fillStyle = 'rgba(255,255,255,0.7)';
+    star(90, 122, 18, 8, 4);
+    ctx.fillStyle = 'rgba(255,255,255,0.55)';
+    star(430, 400, 13, 6, 4);
+
+    // Dots
+    [[435,370,8,0.6],[418,422,5,0.4],[452,410,4,0.5],[72,390,6,0.5],[90,408,4,0.35]].forEach(([x,y,r,a]) => {
+      ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(255,255,255,${a})`; ctx.fill();
+    });
+
+    const dataURL = c.toDataURL('image/png');
+    document.getElementById('appIcon').href = dataURL;
+
+    // Inject dynamic manifest so Android also gets the icon
+    const manifest = {
+      name: 'Musculoskelefun!',
+      short_name: 'Musculoskelefun!',
+      start_url: '.',
+      display: 'standalone',
+      background_color: '#FF8C42',
+      theme_color: '#FF8C42',
+      icons: [{ src: dataURL, sizes: '512x512', type: 'image/png', purpose: 'any maskable' }]
+    };
+    const blob = new Blob([JSON.stringify(manifest)], { type: 'application/json' });
+    const existing = document.querySelector('link[rel="manifest"]');
+    if (existing) existing.href = URL.createObjectURL(blob);
+  } catch(e) { /* canvas not available — fine, name meta tags still work */ }
+})();
 
 // ===================== ANIMATION LOOP =====================
 let expT = 0;

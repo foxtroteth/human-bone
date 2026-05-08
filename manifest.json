@@ -1,0 +1,18 @@
+{
+  "name": "Musculoskelefun!",
+  "short_name": "Musculoskelefun!",
+  "description": "Learn about bones, muscles and nutrition — interactive lessons, quiz and 3D skeleton explorer!",
+  "start_url": ".",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#FF8C42",
+  "theme_color": "#FF8C42",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
