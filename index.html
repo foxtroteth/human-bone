@@ -122,11 +122,49 @@ body {
   border-radius: 20px 20px 0 0;
 }
 .chapter-card:active { transform: scale(0.95); }
-.chapter-card.done::after {
+
+/* In-progress: coloured border */
+.chapter-card.in-progress {
+  border-color: var(--card-color);
+  box-shadow: var(--card-shadow), 0 0 0 1px var(--card-color);
+}
+
+/* Completed: green glow + soft green tint */
+.chapter-card.completed {
+  border-color: var(--green);
+  background: linear-gradient(160deg, #F0FFF4 0%, var(--white) 100%);
+  box-shadow: var(--card-shadow), 0 0 0 1px var(--green);
+}
+.chapter-card.completed::after {
   content: '✅';
   position: absolute;
   top: 8px; right: 10px;
   font-size: 18px;
+}
+
+/* Mini progress bar at the bottom of each card */
+.card-progress-wrap {
+  height: 5px;
+  background: rgba(0,0,0,0.07);
+  border-radius: 10px;
+  overflow: hidden;
+  margin-top: 10px;
+}
+.card-progress-bar {
+  height: 100%;
+  background: var(--card-color);
+  border-radius: 10px;
+  width: 0%;
+  transition: width 0.5s ease;
+}
+.chapter-card.completed .card-progress-bar { background: var(--green); }
+
+.card-status {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #aaa;
+  margin-top: 5px;
+  min-height: 14px;
 }
 
 .chapter-emoji { font-size: 2.8rem; margin-bottom: 6px; }
@@ -136,6 +174,17 @@ body {
   font-weight: 700;
   color: var(--dark);
 }
+
+/* Quiz button locked state */
+.start-quiz-btn.locked {
+  background: linear-gradient(135deg, #ccc, #aaa);
+  box-shadow: none;
+  cursor: default;
+  opacity: 0.85;
+  font-size: 1.1rem;
+  padding: 16px 32px;
+}
+.start-quiz-btn.locked:active { transform: none; }
 
 /* 3D Explorer card (full width) */
 .explorer-card-wrap {
@@ -821,21 +870,29 @@ body {
     <p class="home-sub">Learn about your amazing body 💪✨</p>
 
     <div class="chapter-grid">
-      <div class="chapter-card" style="--card-color: #FF8C42;" onclick="goLesson(0)">
+      <div class="chapter-card" id="lessonCard0" style="--card-color: #FF8C42;" onclick="goLesson(0)">
         <div class="chapter-emoji">🦴</div>
         <div class="chapter-name">Bones & Skeleton</div>
+        <div class="card-progress-wrap"><div class="card-progress-bar" id="cardBar0"></div></div>
+        <div class="card-status" id="cardStatus0"></div>
       </div>
-      <div class="chapter-card" style="--card-color: #FF6B6B;" onclick="goLesson(1)">
+      <div class="chapter-card" id="lessonCard1" style="--card-color: #FF6B6B;" onclick="goLesson(1)">
         <div class="chapter-emoji">💪</div>
         <div class="chapter-name">Muscles & Joints</div>
+        <div class="card-progress-wrap"><div class="card-progress-bar" id="cardBar1"></div></div>
+        <div class="card-status" id="cardStatus1"></div>
       </div>
-      <div class="chapter-card" style="--card-color: #5EC26A;" onclick="goLesson(2)">
+      <div class="chapter-card" id="lessonCard2" style="--card-color: #5EC26A;" onclick="goLesson(2)">
         <div class="chapter-emoji">🥦</div>
         <div class="chapter-name">Nutrition & Food</div>
+        <div class="card-progress-wrap"><div class="card-progress-bar" id="cardBar2"></div></div>
+        <div class="card-status" id="cardStatus2"></div>
       </div>
-      <div class="chapter-card" style="--card-color: #4BACF5;" onclick="goLesson(3)">
+      <div class="chapter-card" id="lessonCard3" style="--card-color: #4BACF5;" onclick="goLesson(3)">
         <div class="chapter-emoji">🩺</div>
         <div class="chapter-name">Stay Healthy!</div>
+        <div class="card-progress-wrap"><div class="card-progress-bar" id="cardBar3"></div></div>
+        <div class="card-status" id="cardStatus3"></div>
       </div>
     </div>
 
@@ -847,7 +904,7 @@ body {
       </div>
     </div>
 
-    <button class="start-quiz-btn" onclick="startQuiz()">🎮 Take the Quiz!</button>
+    <button class="start-quiz-btn locked" id="quizBtn" onclick="tryStartQuiz()">📚 0/4 courses done</button>
   </div>
 </div>
 
@@ -1165,6 +1222,17 @@ let currentQuestion = 0;
 let score = 0;
 let answered = false;
 let visitedLessonPages = {};
+const completedLessons = new Set();
+let activeQuestions = []; // shuffled copy used each quiz run
+
+function shuffleArray(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
 
 // ===================== NAVIGATION =====================
 function showScreen(id) {
@@ -1177,6 +1245,7 @@ function goHome() {
   expRunning = false;
   if (expRafId) { cancelAnimationFrame(expRafId); expRafId = null; }
   expRafActive = false;
+  updateHomeScreen();
   showScreen('home');
 }
 
@@ -1185,6 +1254,7 @@ function goLesson(idx) {
   currentLessonPage = 0;
   if (!visitedLessonPages[idx]) visitedLessonPages[idx] = new Set();
   visitedLessonPages[idx].add(0);
+  updateHomeScreen();
   renderLesson();
   showScreen('lesson');
 }
@@ -1197,7 +1267,12 @@ function renderLesson() {
   l.pages.forEach((_, i) => {
     const d = document.createElement('div');
     d.className = 'lesson-dot' + (i === currentLessonPage ? ' active' : (visitedLessonPages[currentLesson]?.has(i) ? ' visited' : ''));
-    d.onclick = () => { currentLessonPage = i; visitedLessonPages[currentLesson].add(i); renderLesson(); };
+    d.onclick = () => {
+      currentLessonPage = i;
+      visitedLessonPages[currentLesson].add(i);
+      updateHomeScreen();
+      renderLesson();
+    };
     dotsEl.appendChild(d);
   });
   document.getElementById('lessonContent').innerHTML = `<div class="lesson-card">${l.pages[currentLessonPage]}</div>`;
@@ -1205,16 +1280,74 @@ function renderLesson() {
   const next = document.getElementById('nextLessonBtn');
   prev.style.display = currentLessonPage === 0 ? 'none' : 'block';
   const isLast = currentLessonPage === l.pages.length - 1;
-  next.textContent = isLast ? '🎮 Take the Quiz!' : 'Next →';
-  next.onclick = isLast ? startQuiz : nextLesson;
+  if (!isLast) {
+    next.textContent = 'Next →';
+    next.onclick = nextLesson;
+  } else if (currentLesson < lessons.length - 1) {
+    // More courses to go
+    next.textContent = `Next Course: ${lessons[currentLesson + 1].title} →`;
+    next.onclick = () => { completeLesson(currentLesson); goLesson(currentLesson + 1); };
+  } else {
+    // All courses done
+    next.textContent = '🎮 Take the Quiz!';
+    next.onclick = () => { completeLesson(currentLesson); startQuiz(); };
+  }
 }
 
 function nextLesson() {
   if (currentLessonPage < lessons[currentLesson].pages.length - 1) {
     currentLessonPage++;
     visitedLessonPages[currentLesson].add(currentLessonPage);
+    updateHomeScreen();
     renderLesson();
   }
+}
+
+function completeLesson(idx) {
+  completedLessons.add(idx);
+  updateHomeScreen();
+}
+
+function updateHomeScreen() {
+  lessons.forEach((lesson, i) => {
+    const card = document.getElementById('lessonCard' + i);
+    const bar = document.getElementById('cardBar' + i);
+    const status = document.getElementById('cardStatus' + i);
+    if (!card || !bar || !status) return;
+    const total = lesson.pages.length;
+    const visited = visitedLessonPages[i] ? visitedLessonPages[i].size : 0;
+    const isDone = completedLessons.has(i);
+    bar.style.width = (isDone ? 100 : Math.round((visited / total) * 100)) + '%';
+    card.classList.remove('in-progress', 'completed');
+    if (isDone) {
+      card.classList.add('completed');
+      status.textContent = '✅ Complete!';
+      status.style.color = 'var(--green)';
+    } else if (visited > 0) {
+      card.classList.add('in-progress');
+      status.textContent = `📖 ${visited}/${total} pages read`;
+      status.style.color = 'var(--orange)';
+    } else {
+      status.textContent = '';
+    }
+  });
+  // Update quiz button
+  const btn = document.getElementById('quizBtn');
+  if (!btn) return;
+  const done = completedLessons.size;
+  const total = lessons.length;
+  if (done >= total) {
+    btn.textContent = '🎮 Take the Quiz!';
+    btn.className = 'start-quiz-btn';
+  } else {
+    btn.textContent = `📚 ${done}/${total} courses done`;
+    btn.className = 'start-quiz-btn locked';
+  }
+}
+
+function tryStartQuiz() {
+  if (completedLessons.size < lessons.length) return; // still locked
+  startQuiz();
 }
 
 function prevLesson() {
@@ -1223,6 +1356,7 @@ function prevLesson() {
 
 // ===================== QUIZ =====================
 function startQuiz() {
+  activeQuestions = shuffleArray(questions);
   currentQuestion = 0;
   score = 0;
   answered = false;
@@ -1231,11 +1365,11 @@ function startQuiz() {
 }
 
 function renderQuestion() {
-  const q = questions[currentQuestion];
+  const q = activeQuestions[currentQuestion];
   answered = false;
-  const pct = (currentQuestion / questions.length) * 100;
+  const pct = (currentQuestion / activeQuestions.length) * 100;
   document.getElementById('quizProgressBar').style.width = pct + '%';
-  document.getElementById('questionCounter').textContent = `Question ${currentQuestion + 1} / ${questions.length}`;
+  document.getElementById('questionCounter').textContent = `Question ${currentQuestion + 1} / ${activeQuestions.length}`;
   document.getElementById('scoreTracker').textContent = `⭐ ${score}`;
   document.getElementById('nextQuestionBtn').classList.remove('show');
   document.getElementById('questionCard').innerHTML = `
@@ -1252,7 +1386,7 @@ function renderQuestion() {
 function selectAnswer(idx) {
   if (answered) return;
   answered = true;
-  const q = questions[currentQuestion];
+  const q = activeQuestions[currentQuestion];
   const isCorrect = idx === q.correct;
   if (isCorrect) { score++; document.getElementById('scoreTracker').textContent = `⭐ ${score}`; spawnStars(); }
   q.options.forEach((_, i) => {
@@ -1266,12 +1400,12 @@ function selectAnswer(idx) {
   fb.innerHTML = isCorrect ? `🎉 <strong>Correct!</strong> ${q.explain}` : `😅 <strong>Not quite!</strong> ${q.explain}`;
   const nb = document.getElementById('nextQuestionBtn');
   nb.classList.add('show');
-  nb.textContent = currentQuestion < questions.length - 1 ? 'Next Question →' : '🏆 See Results!';
+  nb.textContent = currentQuestion < activeQuestions.length - 1 ? 'Next Question →' : '🏆 See Results!';
 }
 
 function nextQuestion() {
   currentQuestion++;
-  if (currentQuestion >= questions.length) showResult();
+  if (currentQuestion >= activeQuestions.length) showResult();
   else renderQuestion();
 }
 
@@ -1291,7 +1425,7 @@ function spawnStars() {
 }
 
 function showResult() {
-  const pct = score / questions.length;
+  const pct = score / activeQuestions.length;
   let trophy, title, msg, stars;
   if (pct >= 0.9) { trophy = '🏆'; title = "AMAZING! You're a Body Expert!"; msg = 'You got nearly everything right! Your musculoskeletal system is proud of you! 🦴💪'; stars = '⭐⭐⭐'; }
   else if (pct >= 0.7) { trophy = '🥈'; title = 'Great Job, Explorer!'; msg = 'You know a lot about your body! Review the lessons and try again to get a perfect score! 📚'; stars = '⭐⭐'; }
@@ -1299,7 +1433,7 @@ function showResult() {
   else { trophy = '📚'; title = 'Keep Learning!'; msg = "Don't give up! Read through all the lessons carefully, then try the quiz again. You've got this! 🌟"; stars = '⭐'; }
   document.getElementById('resultTrophy').textContent = trophy;
   document.getElementById('resultTitle').textContent = title;
-  document.getElementById('resultScore').textContent = `${score}/${questions.length}`;
+  document.getElementById('resultScore').textContent = `${score}/${activeQuestions.length}`;
   document.getElementById('resultStars').textContent = stars;
   document.getElementById('resultMsg').textContent = msg;
   showScreen('result');
