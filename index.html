@@ -320,6 +320,110 @@ body {
 .info-card .ic-title { font-family: 'Baloo 2', cursive; font-weight: 700; font-size: 1rem; color: var(--dark); }
 .info-card .ic-desc { font-size: 0.85rem; color: #666; margin-top: 4px; }
 
+.lesson-card .info-card,
+.lesson-card .nutrient-card,
+.lesson-card .pill,
+.lesson-card .bone-list li,
+.lesson-card .tip-list li,
+.lesson-card .lesson-emoji-big {
+  position: relative;
+}
+
+.lesson-interactive {
+  cursor: pointer;
+  outline: none;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, filter 0.18s ease;
+  touch-action: manipulation;
+}
+.lesson-interactive:hover,
+.lesson-interactive:focus-visible {
+  transform: translateY(-3px) scale(1.03);
+  box-shadow: 0 10px 24px rgba(0,0,0,0.13);
+  filter: saturate(1.08);
+}
+.lesson-interactive:active { transform: scale(0.96); }
+.lesson-interactive.lesson-pop {
+  animation: lessonPop 0.42s cubic-bezier(0.2, 1.4, 0.35, 1);
+}
+.lesson-interactive.food-sizzle .nc-emoji,
+.lesson-interactive.food-sizzle.pill,
+.lesson-interactive.food-sizzle {
+  animation: foodSizzle 0.48s ease;
+}
+.lesson-interactive.body-pulse .ic-emoji,
+.lesson-interactive.body-pulse .bone-emoji,
+.lesson-interactive.body-pulse .ti-emoji,
+.lesson-interactive.body-pulse.lesson-emoji-big {
+  animation: bodyPulse 0.52s ease;
+}
+
+.lesson-tooltip {
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 10px);
+  transform: translate(-50%, 6px) scale(0.96);
+  width: max-content;
+  max-width: min(260px, calc(100vw - 48px));
+  background: #2D2D2D;
+  color: white;
+  border-radius: 14px;
+  padding: 9px 12px;
+  font-size: 0.82rem;
+  font-weight: 800;
+  line-height: 1.35;
+  text-align: center;
+  box-shadow: 0 10px 28px rgba(0,0,0,0.22);
+  opacity: 0;
+  pointer-events: none;
+  z-index: 30;
+}
+.lesson-tooltip::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 8px solid transparent;
+  border-top-color: #2D2D2D;
+}
+.lesson-tooltip.show {
+  animation: tooltipIn 1.7s ease forwards;
+}
+
+.lesson-spark {
+  position: fixed;
+  pointer-events: none;
+  z-index: 9997;
+  font-size: 1.15rem;
+  animation: lessonSpark 0.8s ease-out forwards;
+}
+
+@keyframes lessonPop {
+  0% { transform: scale(1); }
+  45% { transform: scale(1.12) rotate(-1.5deg); }
+  100% { transform: scale(1); }
+}
+@keyframes foodSizzle {
+  0%, 100% { transform: rotate(0deg) scale(1); }
+  25% { transform: rotate(-5deg) scale(1.08); }
+  55% { transform: rotate(4deg) scale(1.12); }
+  80% { transform: rotate(-2deg) scale(1.04); }
+}
+@keyframes bodyPulse {
+  0% { transform: scale(1); filter: drop-shadow(0 0 0 rgba(75,172,245,0)); }
+  45% { transform: scale(1.18); filter: drop-shadow(0 0 12px rgba(75,172,245,0.55)); }
+  100% { transform: scale(1); filter: drop-shadow(0 0 0 rgba(75,172,245,0)); }
+}
+@keyframes tooltipIn {
+  0% { opacity: 0; transform: translate(-50%, 6px) scale(0.96); }
+  12%, 78% { opacity: 1; transform: translate(-50%, 0) scale(1); }
+  100% { opacity: 0; transform: translate(-50%, -4px) scale(0.98); }
+}
+@keyframes lessonSpark {
+  from { opacity: 1; transform: translate(0, 0) scale(0.8) rotate(0deg); }
+  to { opacity: 0; transform: translate(var(--spark-x), var(--spark-y)) scale(1.3) rotate(35deg); }
+}
+
 .bone-list { list-style: none; }
 .bone-list li {
   display: flex;
@@ -1582,6 +1686,76 @@ function renderLesson() {
     // All courses done
     next.textContent = '🎮 Take the Quiz!';
     next.onclick = () => { completeLesson(currentLesson); openQuizLevels(); };
+  }
+  enhanceLessonInteractives();
+}
+
+function enhanceLessonInteractives() {
+  const card = document.querySelector('#lessonContent .lesson-card');
+  if (!card) return;
+  const targets = card.querySelectorAll('.info-card, .nutrient-card, .pill, .bone-list li, .tip-list li, .lesson-emoji-big');
+  targets.forEach(el => {
+    if (el.dataset.enhanced === 'true') return;
+    el.dataset.enhanced = 'true';
+    el.classList.add('lesson-interactive');
+    el.tabIndex = 0;
+    el.setAttribute('role', 'button');
+    el.setAttribute('aria-label', getLessonTooltip(el));
+    el.addEventListener('click', event => playLessonInteraction(el, event));
+    el.addEventListener('keydown', event => {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        playLessonInteraction(el, event);
+      }
+    });
+  });
+}
+
+function getLessonTooltip(el) {
+  const title = el.querySelector('.ic-title, .nc-name, strong')?.textContent?.trim();
+  const desc = el.querySelector('.ic-desc, .nc-desc')?.textContent?.trim();
+  const text = el.textContent.replace(/\s+/g, ' ').trim();
+  if (title && desc) return `${title}: ${desc}`;
+  if (title) return title;
+  return text || 'Tap to discover!';
+}
+
+function playLessonInteraction(el, event) {
+  el.classList.remove('lesson-pop', 'food-sizzle', 'body-pulse');
+  void el.offsetWidth;
+  const foodMatch = /🍽️|🍞|🥩|🥑|🥛|☀️|💧|🥦|🧀|🍦|🌿|🌰|🥗|Food|Carbs|Protein|Fats|Calcium|Vitamin|Water|Milk|Cheese|Yogurt|Broccoli|Spinach|Almonds/i;
+  const styleClass = foodMatch.test(el.textContent) ? 'food-sizzle' : 'body-pulse';
+  el.classList.add('lesson-pop', styleClass);
+  showLessonTooltip(el);
+  burstLessonSparks(event);
+}
+
+function showLessonTooltip(el) {
+  el.querySelector('.lesson-tooltip')?.remove();
+  const tip = document.createElement('div');
+  tip.className = 'lesson-tooltip';
+  tip.textContent = getLessonTooltip(el);
+  el.appendChild(tip);
+  requestAnimationFrame(() => tip.classList.add('show'));
+  setTimeout(() => tip.remove(), 1700);
+}
+
+function burstLessonSparks(event) {
+  const source = event.currentTarget || event.target.closest?.('.lesson-interactive') || event.target;
+  const rect = source.getBoundingClientRect();
+  const x = event.clientX || rect.left + rect.width / 2;
+  const y = event.clientY || rect.top + rect.height / 2;
+  const icons = ['✨', '⭐', '💡'];
+  for (let i = 0; i < 5; i++) {
+    const s = document.createElement('span');
+    s.className = 'lesson-spark';
+    s.textContent = icons[i % icons.length];
+    s.style.left = x + 'px';
+    s.style.top = y + 'px';
+    s.style.setProperty('--spark-x', `${(i - 2) * 24}px`);
+    s.style.setProperty('--spark-y', `${-34 - Math.abs(i - 2) * 10}px`);
+    document.body.appendChild(s);
+    setTimeout(() => s.remove(), 850);
   }
 }
 
