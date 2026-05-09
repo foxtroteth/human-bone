@@ -1032,7 +1032,24 @@ body {
       </div>
     </div>
 
-    <button class="start-quiz-btn counting" id="quizBtn" onclick="startQuiz()">📚 0/4 courses done</button>
+    <button class="start-quiz-btn counting" id="quizBtn" onclick="openQuizLevels()">📚 0/4 courses done</button>
+  </div>
+</div>
+
+
+
+<!-- QUIZ LEVEL SELECT SCREEN -->
+<div id="quizLevels" class="screen">
+  <div class="result-content" style="max-width:700px;">
+    <span class="result-trophy">🧠</span>
+    <div class="result-title">Choose Quiz Level</div>
+    <div class="result-message">Pick your challenge! Levels 2 and 3 are new and based on all course lessons.</div>
+    <div class="result-btns" style="flex-direction:column; width:100%; max-width:420px;">
+      <button class="retry-btn" onclick="startQuiz('level1')">🌱 Level 1 — Starter</button>
+      <button class="retry-btn" onclick="startQuiz('level2')">🚀 Level 2 — Explorer</button>
+      <button class="retry-btn" onclick="startQuiz('level3')">🔥 Level 3 — Master</button>
+      <button class="home-btn-res" onclick="goHome()">← Back Home</button>
+    </div>
   </div>
 </div>
 
@@ -1077,7 +1094,7 @@ body {
     </div>
     <div class="result-message" id="resultMsg">You're a Body Explorer!</div>
     <div class="result-btns">
-      <button class="retry-btn" onclick="startQuiz()">🔄 Try Again</button>
+      <button class="retry-btn" onclick="startQuiz(activeQuizLevel)">🔄 Try Again</button>
       <button class="home-btn-res" onclick="goHome()">🏠 Home</button>
     </div>
 
@@ -1417,7 +1434,7 @@ const lessons = [
 ];
 
 // ===================== QUIZ QUESTIONS =====================
-const questions = [
+const level1Questions = [
   { emoji: '🦴', text: 'How many bones does an adult human body have?', options: ['150 bones', '206 bones', '300 bones', '500 bones'], correct: 1, explain: 'An adult body has 206 bones! Babies start with 300, but some fuse together as we grow. 🦴' },
   { emoji: '👶', text: 'How many bones does a BABY have at birth?', options: ['100 bones', '150 bones', '206 bones', '300 bones'], correct: 3, explain: 'Babies are born with about 300 bones! Some grow together (fuse) as they get older. 👶' },
   { emoji: '💀', text: 'Which skull bone is the ONLY one that can move?', options: ['Cranium', 'Nasal bone', 'Lower jaw (Mandible)', 'Cheekbone'], correct: 2, explain: 'The Mandible (lower jaw) is the only skull bone that moves — it lets you chew and talk! 🗣️' },
@@ -1435,12 +1452,36 @@ const questions = [
   { emoji: '🔩', text: 'What does the SPINE (backbone) protect?', options: ['Heart', 'Lungs', 'Brain', 'Spinal cord and nerves'], correct: 3, explain: 'The spine supports your body AND protects the spinal cord and nerves inside it! 🔩' }
 ];
 
+
+
+const level2Questions = [
+  { emoji: '🧒', text: 'Why do babies have more bones than adults?', options: ['Adults lose bones', 'Some baby bones fuse as they grow', 'Babies have extra muscles', 'Adult bones dissolve'], correct: 1, explain: 'Babies begin with about 300 bones, and several fuse together during growth to become 206 in adults.' },
+  { emoji: '🦵', text: 'The femur is located in which body part?', options: ['Upper arm', 'Thigh', 'Chest', 'Neck'], correct: 1, explain: 'The femur is the thigh bone and is the longest, strongest bone in the body.' },
+  { emoji: '🫁', text: 'What is the best pair match for body protection?', options: ['Skull → lungs, ribs → brain', 'Ribs → heart/lungs, skull → brain', 'Spine → eyes, skull → stomach', 'Ribs → kidneys, skull → spine'], correct: 1, explain: 'The skull protects the brain, while the rib cage protects the heart and lungs.' },
+  { emoji: '💪', text: 'What happens in a working muscle pair during movement?', options: ['Both contract at once', 'One contracts while the other relaxes', 'Both relax fully', 'Neither changes length'], correct: 1, explain: 'Muscles work in pairs: one contracts while the opposite muscle relaxes.' },
+  { emoji: '🔗', text: 'Which joint type allows the widest range of motion?', options: ['Fixed joint', 'Hinge joint', 'Ball-and-socket joint', 'Gliding joint'], correct: 2, explain: 'Ball-and-socket joints, like shoulder and hip, move in many directions.' },
+  { emoji: '☀️', text: 'Why is morning sunlight recommended in the course?', options: ['To build protein directly', 'To help skin make vitamin D', 'To replace drinking water', 'To harden joints'], correct: 1, explain: 'Sunlight helps your skin produce vitamin D, which helps absorb calcium.' },
+  { emoji: '🥛', text: 'Which combo most directly supports strong bones?', options: ['Iron + sugar', 'Calcium + vitamin D', 'Salt + fat', 'Water + oxygen'], correct: 1, explain: 'Calcium builds bone, and vitamin D helps absorb calcium.' },
+  { emoji: '💧', text: 'The lesson suggests children aged 7–9 drink about…', options: ['4–5 glasses', '6–7 glasses', '8–9 glasses', '10–11 glasses'], correct: 2, explain: 'The course target is around 1.7 liters, about 8–9 glasses daily.' }
+];
+
+const level3Questions = [
+  { emoji: '🧠', text: 'Which sequence correctly describes movement?', options: ['Muscle contracts → brain signals', 'Brain signal → muscle contraction → movement', 'Joint moves → brain decides', 'Bone bends → nerve signal'], correct: 1, explain: 'The brain and nervous system send signals first, then muscles contract to create movement.' },
+  { emoji: '📚', text: 'Which statement is fully accurate from the course?', options: ['Adults: 300 bones, ~206 joints', 'Adults: 206 bones, ~360 joints', 'Adults: 206 bones, ~100 muscles', 'Adults: 360 bones, 600 joints'], correct: 1, explain: 'The course teaches 206 bones and around 360 joints in the human body.' },
+  { emoji: '⚖️', text: 'If vitamin D is low, what problem appears first in the calcium system?', options: ['Calcium cannot be absorbed well', 'Muscles stop existing', 'Bones instantly break', 'Joints disappear'], correct: 0, explain: 'Vitamin D helps absorb calcium, so low vitamin D reduces calcium uptake.' },
+  { emoji: '🩺', text: 'A child has weak bones, cramps, and low sun exposure. Best course-based advice?', options: ['Avoid calcium foods', 'Increase morning sun and calcium-rich foods', 'Only drink juice', 'Stop all exercise'], correct: 1, explain: 'The course recommends sunlight for vitamin D plus calcium foods for stronger bones.' },
+  { emoji: '🏃', text: 'Why does regular exercise help the musculoskeletal system?', options: ['It replaces joints', 'It keeps bones/muscles strong and functional', 'It reduces need for water', 'It fuses all bones'], correct: 1, explain: 'Exercise strengthens muscles and supports healthy bones and movement.' },
+  { emoji: '🔬', text: 'Which is the best systems-thinking explanation?', options: ['Bones work alone', 'Muscles, joints, bones, nerves, and nutrition work together', 'Only muscles control posture', 'Only water matters'], correct: 1, explain: 'The course connects structure (bones/joints), control (nerves/brain), and nutrition/hydration together.' },
+  { emoji: '🥦', text: 'Which daily plan best matches all course tips?', options: ['Skip breakfast, no sun, video games only', 'Calcium-rich meals, short morning sun, exercise, enough water', 'Only protein shakes', 'Sunlight only once a month'], correct: 1, explain: 'Balanced meals + sunlight + exercise + hydration is the course’s full health plan.' },
+  { emoji: '🏁', text: 'What is the strongest justification for seeing a doctor early?', options: ['To get stickers only', 'Early advice can prevent worse weakness/pain', 'Doctors are for adults only', 'Pain always disappears alone'], correct: 1, explain: 'The lesson says early medical advice is important for weak bones or muscle pain.' }
+];
 // ===================== APP STATE =====================
 let currentLesson = 0;
 let currentLessonPage = 0;
 let currentQuestion = 0;
 let score = 0;
 let answered = false;
+let activeQuizLevel = 'level1';
 let visitedLessonPages = {};
 const completedLessons = new Set();
 let activeQuestions = []; // shuffled copy used each quiz run
@@ -1510,7 +1551,7 @@ function renderLesson() {
   } else {
     // All courses done
     next.textContent = '🎮 Take the Quiz!';
-    next.onclick = () => { completeLesson(currentLesson); startQuiz(); };
+    next.onclick = () => { completeLesson(currentLesson); openQuizLevels(); };
   }
 }
 
@@ -1570,8 +1611,19 @@ function prevLesson() {
 }
 
 // ===================== QUIZ =====================
-function startQuiz() {
-  activeQuestions = shuffleArray(questions);
+function openQuizLevels() {
+  showScreen('quizLevels');
+}
+
+function getQuestionsForLevel(level) {
+  if (level === 'level2') return level2Questions;
+  if (level === 'level3') return level3Questions;
+  return level1Questions;
+}
+
+function startQuiz(level = 'level1') {
+  activeQuizLevel = level;
+  activeQuestions = shuffleArray(getQuestionsForLevel(level));
   currentQuestion = 0;
   score = 0;
   answered = false;
